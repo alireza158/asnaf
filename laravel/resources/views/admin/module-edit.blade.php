@@ -1,25 +1,28 @@
 @extends('layouts.admin')
 @section('title', $title.' | پنل مدیریت')
 @section('content')
-<header class="admin-header">
-    <div><span>{{ $jalaliDate }}</span><h1>{{ $title }}</h1><p>فیلدها را تغییر دهید و ذخیره کنید تا در دیتابیس ثبت شود.</p></div>
-    <a class="admin-primary" href="{{ route('admin.module', $module) }}">بازگشت به لیست</a>
-</header>
-<section class="admin-panel">
-    <form class="admin-form admin-edit-form" method="post" action="{{ route('admin.module.update', [$module, $row['id']]) }}">@csrf @method('PUT')
-        @foreach($editable as $field)
-            <label>{{ $labels[$field] ?? $field }}
+<div class="container-fluid px-0">
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+        <div><span class="badge text-bg-secondary mb-2">{{ $jalaliDate }}</span><h1 class="h3 fw-black mb-1">{{ $title }}</h1><p class="text-muted mb-0">فرم ساده Bootstrap برای تغییر رکوردهای داینامیک پنل.</p></div>
+        <a class="btn btn-outline-secondary rounded-pill px-4" href="{{ route('admin.module', $module) }}">بازگشت به لیست</a>
+    </div>
+    <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 p-lg-5">
+        <form method="post" action="{{ route('admin.module.update', [$module, $row['id']]) }}" class="row g-3">@csrf @method('PUT')
+            @foreach($editable as $field)
                 @php($value = old($field, $row[$field] ?? ''))
-                @if(\Illuminate\Support\Str::contains($field, ['content', 'summary', 'body', 'value', 'permissions', 'features', 'gallery', 'settings']))
-                    <textarea name="{{ $field }}" rows="5">{{ $value }}</textarea>
-                @elseif(\Illuminate\Support\Str::contains($field, ['enabled', 'active', 'important', 'complaints_enabled', 'sms_enabled', 'is_external']))
-                    <select name="{{ $field }}"><option value="1" @selected((bool) $value)>فعال / بله</option><option value="0" @selected(! (bool) $value)>غیرفعال / خیر</option></select>
-                @else
-                    <input name="{{ $field }}" value="{{ $value }}">
-                @endif
-            </label>
-        @endforeach
-        <button class="admin-primary">ذخیره تغییرات</button>
-    </form>
-</section>
+                <div class="col-12 {{ \Illuminate\Support\Str::contains($field, ['content', 'summary', 'body', 'value', 'permissions', 'features', 'gallery', 'settings']) ? '' : 'col-lg-6' }}">
+                    <label class="form-label fw-bold">{{ $labels[$field] ?? $field }}</label>
+                    @if(\Illuminate\Support\Str::contains($field, ['content', 'summary', 'body', 'value', 'permissions', 'features', 'gallery', 'settings']))
+                        <textarea class="form-control rounded-3" name="{{ $field }}" rows="6">{{ $value }}</textarea>
+                    @elseif(\Illuminate\Support\Str::contains($field, ['enabled', 'active', 'important', 'complaints_enabled', 'sms_enabled', 'is_external']))
+                        <select class="form-select rounded-3" name="{{ $field }}"><option value="1" @selected((bool) $value)>فعال / بله</option><option value="0" @selected(! (bool) $value)>غیرفعال / خیر</option></select>
+                    @else
+                        <input class="form-control rounded-3" name="{{ $field }}" value="{{ $value }}">
+                    @endif
+                </div>
+            @endforeach
+            <div class="col-12"><button class="btn btn-primary rounded-pill px-5">ذخیره تغییرات</button></div>
+        </form>
+    </div></div>
+</div>
 @endsection

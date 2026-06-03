@@ -149,23 +149,28 @@ function asnafData(): array
 function adminModules(): array
 {
     return [
-        'site_settings' => ['title' => 'تنظیمات سایت', 'table' => 'site_settings', 'columns' => ['id', 'key', 'value'], 'editable' => ['key', 'value']],
-        'menus' => ['title' => 'منوهای پویا', 'table' => 'menus', 'columns' => ['id', 'location', 'title', 'url', 'parent_id', 'sort_order', 'enabled'], 'editable' => ['location', 'parent_id', 'title', 'url', 'icon', 'is_external', 'enabled', 'sort_order']],
-        'home_sections' => ['title' => 'سکشن‌های صفحه اصلی', 'table' => 'home_sections', 'columns' => ['id', 'key', 'title', 'enabled', 'sort_order'], 'editable' => ['key', 'title', 'enabled', 'sort_order', 'settings']],
-        'service_pages' => ['title' => 'خدمات الکترونیک', 'table' => 'service_pages', 'columns' => ['id', 'title', 'slug', 'status', 'sort_order'], 'editable' => ['slug', 'icon', 'title', 'summary', 'content', 'status', 'sort_order']],
-        'contents' => ['title' => 'اخبار، اطلاعیه‌ها و محتوا', 'table' => 'contents', 'columns' => ['id', 'type', 'title', 'status', 'important', 'approved_by'], 'editable' => ['guild_id', 'category_id', 'slug', 'type', 'title', 'summary', 'content', 'status', 'important', 'approved_by', 'gallery', 'video_type', 'video_url']],
-        'categories' => ['title' => 'دسته‌بندی‌ها', 'table' => 'categories', 'columns' => ['id', 'type', 'title', 'slug'], 'editable' => ['type', 'title', 'slug', 'description']],
-        'guilds' => ['title' => 'اتحادیه‌ها', 'table' => 'guilds', 'columns' => ['id', 'title', 'chairman', 'phone', 'complaints_enabled', 'members_count'], 'editable' => ['category_id', 'slug', 'title', 'chairman', 'phone', 'complaints_enabled', 'features', 'members_count', 'summary', 'content']],
-        'guild_members' => ['title' => 'اعضای اتحادیه‌ها', 'table' => 'guild_members', 'columns' => ['id', 'guild_id', 'name', 'mobile', 'business_name'], 'editable' => ['guild_id', 'name', 'mobile', 'business_name', 'license_number', 'sms_enabled']],
-        'commissions' => ['title' => 'کمیسیون‌ها', 'table' => 'commissions', 'columns' => ['id', 'title', 'slug', 'sort_order'], 'editable' => ['slug', 'title', 'summary', 'content', 'sort_order']],
-        'commission_meetings' => ['title' => 'جلسات کمیسیون‌ها', 'table' => 'commission_meetings', 'columns' => ['id', 'commission_id', 'title', 'held_at'], 'editable' => ['commission_id', 'title', 'held_at', 'summary']],
-        'tourism_places' => ['title' => 'گردشگری', 'table' => 'tourism_places', 'columns' => ['id', 'title', 'category_id', 'enabled'], 'editable' => ['category_id', 'slug', 'title', 'summary', 'content', 'image', 'enabled']],
-        'systems' => ['title' => 'سامانه‌ها', 'table' => 'systems', 'columns' => ['id', 'title', 'url', 'enabled'], 'editable' => ['slug', 'title', 'url', 'description', 'is_external', 'enabled']],
-        'advertisements' => ['title' => 'تبلیغات', 'table' => 'advertisements', 'columns' => ['id', 'position', 'title', 'url', 'active'], 'editable' => ['position', 'title', 'url', 'image', 'active', 'starts_at', 'ends_at']],
-        'roles' => ['title' => 'سطوح دسترسی', 'table' => 'roles', 'columns' => ['id', 'name', 'permissions'], 'editable' => ['name', 'permissions']],
-        'complaints' => ['title' => 'شکایات', 'table' => 'complaints', 'columns' => ['id', 'tracking_code', 'guild_id', 'name', 'mobile', 'status'], 'editable' => ['guild_id', 'tracking_code', 'name', 'mobile', 'body', 'status']],
-        'sms_messages' => ['title' => 'پیامک‌ها', 'table' => 'sms_messages', 'columns' => ['id', 'guild_id', 'recipient_type', 'recipient_mobile', 'status'], 'editable' => ['guild_id', 'sent_by', 'recipient_type', 'recipient_mobile', 'body', 'status']],
+        'site_settings' => ['group' => 'ساختار سایت', 'title' => 'تنظیمات سایت', 'table' => 'site_settings', 'columns' => ['id', 'key', 'value'], 'editable' => ['key', 'value']],
+        'menus' => ['group' => 'ساختار سایت', 'title' => 'منوهای پویا', 'table' => 'menus', 'columns' => ['id', 'location', 'title', 'url', 'parent_id', 'sort_order', 'enabled'], 'editable' => ['location', 'parent_id', 'title', 'url', 'icon', 'is_external', 'enabled', 'sort_order']],
+        'home_sections' => ['group' => 'ساختار سایت', 'title' => 'صفحه اصلی', 'table' => 'home_sections', 'columns' => ['id', 'key', 'title', 'enabled', 'sort_order'], 'editable' => ['key', 'title', 'enabled', 'sort_order', 'settings']],
+        'advertisements' => ['group' => 'ساختار سایت', 'title' => 'تبلیغات', 'table' => 'advertisements', 'columns' => ['id', 'position', 'title', 'url', 'active'], 'editable' => ['position', 'title', 'url', 'image', 'active', 'starts_at', 'ends_at']],
+        'contents' => ['group' => 'محتوا', 'title' => 'اخبار و اطلاعیه‌ها', 'table' => 'contents', 'columns' => ['id', 'type', 'title', 'status', 'important', 'approved_by'], 'editable' => ['guild_id', 'category_id', 'slug', 'type', 'title', 'summary', 'content', 'status', 'important', 'approved_by', 'gallery', 'video_type', 'video_url']],
+        'service_pages' => ['group' => 'محتوا', 'title' => 'خدمات الکترونیک', 'table' => 'service_pages', 'columns' => ['id', 'title', 'slug', 'status', 'sort_order'], 'editable' => ['slug', 'icon', 'title', 'summary', 'content', 'status', 'sort_order']],
+        'categories' => ['group' => 'محتوا', 'title' => 'دسته‌بندی‌ها', 'table' => 'categories', 'columns' => ['id', 'type', 'title', 'slug'], 'editable' => ['type', 'title', 'slug', 'description']],
+        'systems' => ['group' => 'محتوا', 'title' => 'سامانه‌ها', 'table' => 'systems', 'columns' => ['id', 'title', 'url', 'enabled'], 'editable' => ['slug', 'title', 'url', 'description', 'is_external', 'enabled']],
+        'guilds' => ['group' => 'اتحادیه و خدمات', 'title' => 'اتحادیه‌ها', 'table' => 'guilds', 'columns' => ['id', 'title', 'chairman', 'phone', 'complaints_enabled', 'members_count'], 'editable' => ['category_id', 'slug', 'title', 'chairman', 'phone', 'complaints_enabled', 'features', 'members_count', 'summary', 'content']],
+        'guild_members' => ['group' => 'اتحادیه و خدمات', 'title' => 'اعضای اتحادیه', 'table' => 'guild_members', 'columns' => ['id', 'guild_id', 'name', 'mobile', 'business_name'], 'editable' => ['guild_id', 'name', 'mobile', 'business_name', 'license_number', 'sms_enabled']],
+        'complaints' => ['group' => 'اتحادیه و خدمات', 'title' => 'شکایات', 'table' => 'complaints', 'columns' => ['id', 'tracking_code', 'guild_id', 'name', 'mobile', 'status'], 'editable' => ['guild_id', 'tracking_code', 'name', 'mobile', 'body', 'status']],
+        'sms_messages' => ['group' => 'اتحادیه و خدمات', 'title' => 'پیامک‌ها', 'table' => 'sms_messages', 'columns' => ['id', 'guild_id', 'recipient_type', 'recipient_mobile', 'status'], 'editable' => ['guild_id', 'sent_by', 'recipient_type', 'recipient_mobile', 'body', 'status']],
+        'commissions' => ['group' => 'کمیسیون و گردشگری', 'title' => 'کمیسیون‌ها', 'table' => 'commissions', 'columns' => ['id', 'title', 'slug', 'sort_order'], 'editable' => ['slug', 'title', 'summary', 'content', 'sort_order']],
+        'commission_meetings' => ['group' => 'کمیسیون و گردشگری', 'title' => 'جلسات کمیسیون‌ها', 'table' => 'commission_meetings', 'columns' => ['id', 'commission_id', 'title', 'held_at'], 'editable' => ['commission_id', 'title', 'held_at', 'summary']],
+        'tourism_places' => ['group' => 'کمیسیون و گردشگری', 'title' => 'گردشگری', 'table' => 'tourism_places', 'columns' => ['id', 'title', 'category_id', 'enabled'], 'editable' => ['category_id', 'slug', 'title', 'summary', 'content', 'image', 'enabled']],
+        'roles' => ['group' => 'کاربران', 'title' => 'سطوح دسترسی', 'table' => 'roles', 'columns' => ['id', 'name', 'permissions'], 'editable' => ['name', 'permissions']],
     ];
+}
+
+function adminModuleGroups(): array
+{
+    return collect(adminModules())->groupBy('group')->all();
 }
 
 function adminLabels(): array
