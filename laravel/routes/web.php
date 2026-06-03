@@ -1,9 +1,12 @@
 <?php
 
 use App\Models\Complaint;
+use App\Models\User;
 use App\Support\JalaliDate;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -142,6 +145,39 @@ function asnafData(): array
     ];
 }
 
+
+function adminModules(): array
+{
+    return [
+        'site_settings' => ['title' => 'تنظیمات سایت', 'table' => 'site_settings', 'columns' => ['id', 'key', 'value'], 'editable' => ['key', 'value']],
+        'menus' => ['title' => 'منوهای پویا', 'table' => 'menus', 'columns' => ['id', 'location', 'title', 'url', 'parent_id', 'sort_order', 'enabled'], 'editable' => ['location', 'parent_id', 'title', 'url', 'icon', 'is_external', 'enabled', 'sort_order']],
+        'home_sections' => ['title' => 'سکشن‌های صفحه اصلی', 'table' => 'home_sections', 'columns' => ['id', 'key', 'title', 'enabled', 'sort_order'], 'editable' => ['key', 'title', 'enabled', 'sort_order', 'settings']],
+        'service_pages' => ['title' => 'خدمات الکترونیک', 'table' => 'service_pages', 'columns' => ['id', 'title', 'slug', 'status', 'sort_order'], 'editable' => ['slug', 'icon', 'title', 'summary', 'content', 'status', 'sort_order']],
+        'contents' => ['title' => 'اخبار، اطلاعیه‌ها و محتوا', 'table' => 'contents', 'columns' => ['id', 'type', 'title', 'status', 'important', 'approved_by'], 'editable' => ['guild_id', 'category_id', 'slug', 'type', 'title', 'summary', 'content', 'status', 'important', 'approved_by', 'gallery', 'video_type', 'video_url']],
+        'categories' => ['title' => 'دسته‌بندی‌ها', 'table' => 'categories', 'columns' => ['id', 'type', 'title', 'slug'], 'editable' => ['type', 'title', 'slug', 'description']],
+        'guilds' => ['title' => 'اتحادیه‌ها', 'table' => 'guilds', 'columns' => ['id', 'title', 'chairman', 'phone', 'complaints_enabled', 'members_count'], 'editable' => ['category_id', 'slug', 'title', 'chairman', 'phone', 'complaints_enabled', 'features', 'members_count', 'summary', 'content']],
+        'guild_members' => ['title' => 'اعضای اتحادیه‌ها', 'table' => 'guild_members', 'columns' => ['id', 'guild_id', 'name', 'mobile', 'business_name'], 'editable' => ['guild_id', 'name', 'mobile', 'business_name', 'license_number', 'sms_enabled']],
+        'commissions' => ['title' => 'کمیسیون‌ها', 'table' => 'commissions', 'columns' => ['id', 'title', 'slug', 'sort_order'], 'editable' => ['slug', 'title', 'summary', 'content', 'sort_order']],
+        'commission_meetings' => ['title' => 'جلسات کمیسیون‌ها', 'table' => 'commission_meetings', 'columns' => ['id', 'commission_id', 'title', 'held_at'], 'editable' => ['commission_id', 'title', 'held_at', 'summary']],
+        'tourism_places' => ['title' => 'گردشگری', 'table' => 'tourism_places', 'columns' => ['id', 'title', 'category_id', 'enabled'], 'editable' => ['category_id', 'slug', 'title', 'summary', 'content', 'image', 'enabled']],
+        'systems' => ['title' => 'سامانه‌ها', 'table' => 'systems', 'columns' => ['id', 'title', 'url', 'enabled'], 'editable' => ['slug', 'title', 'url', 'description', 'is_external', 'enabled']],
+        'advertisements' => ['title' => 'تبلیغات', 'table' => 'advertisements', 'columns' => ['id', 'position', 'title', 'url', 'active'], 'editable' => ['position', 'title', 'url', 'image', 'active', 'starts_at', 'ends_at']],
+        'roles' => ['title' => 'سطوح دسترسی', 'table' => 'roles', 'columns' => ['id', 'name', 'permissions'], 'editable' => ['name', 'permissions']],
+        'complaints' => ['title' => 'شکایات', 'table' => 'complaints', 'columns' => ['id', 'tracking_code', 'guild_id', 'name', 'mobile', 'status'], 'editable' => ['guild_id', 'tracking_code', 'name', 'mobile', 'body', 'status']],
+        'sms_messages' => ['title' => 'پیامک‌ها', 'table' => 'sms_messages', 'columns' => ['id', 'guild_id', 'recipient_type', 'recipient_mobile', 'status'], 'editable' => ['guild_id', 'sent_by', 'recipient_type', 'recipient_mobile', 'body', 'status']],
+    ];
+}
+
+function adminLabels(): array
+{
+    return [
+        'id' => 'شناسه', 'title' => 'عنوان', 'name' => 'نام', 'status' => 'وضعیت', 'url' => 'لینک', 'slug' => 'نامک',
+        'location' => 'جایگاه', 'parent_id' => 'والد', 'sort_order' => 'ترتیب', 'enabled' => 'فعال', 'key' => 'کلید',
+        'type' => 'نوع', 'summary' => 'خلاصه', 'content' => 'محتوا', 'permissions' => 'دسترسی‌ها', 'value' => 'مقدار',
+        'phone' => 'تلفن', 'mobile' => 'موبایل', 'body' => 'متن', 'important' => 'مهم', 'active' => 'فعال',
+    ];
+}
+
 function asnafViewData(array $extra = []): array
 {
     $data = asnafData();
@@ -251,31 +287,91 @@ Route::get('/search', function () {
     return view('site.list', asnafViewData(['title' => 'نتایج جستجو برای «'.$query.'»', 'items' => $items]));
 })->name('search');
 
-Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', fn () => view('admin.dashboard', asnafViewData()))->name('dashboard');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', fn () => view('auth.login', asnafViewData()))->name('login');
+    Route::post('/login', function () {
+        $credentials = request()->validate(['email' => ['required', 'email'], 'password' => ['required']]);
+        if (Auth::attempt($credentials, (bool) request('remember'))) {
+            request()->session()->regenerate();
+
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        return back()->withErrors(['email' => 'اطلاعات ورود صحیح نیست.'])->onlyInput('email');
+    })->name('login.store');
+
+    Route::get('/register', fn () => view('auth.register', asnafViewData()))->name('register');
+    Route::post('/register', function () {
+        $data = request()->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
+        $user = User::create(['name' => $data['name'], 'email' => $data['email'], 'password' => Hash::make($data['password'])]);
+        Auth::login($user);
+
+        return redirect()->route('admin.dashboard');
+    })->name('register.store');
+});
+
+Route::post('/logout', function () {
+    Auth::logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect()->route('home');
+})->middleware('auth')->name('logout');
+
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('/', fn () => view('admin.dashboard', asnafViewData(['modules' => adminModules()])))->name('dashboard');
+
     Route::get('/module/{module}', function (string $module) {
-        $modules = [
-            'roles' => ['title' => 'سطوح دسترسی', 'table' => 'roles', 'columns' => ['id', 'name', 'permissions']],
-            'menus' => ['title' => 'منوهای پویا', 'table' => 'menus', 'columns' => ['id', 'location', 'title', 'url', 'parent_id', 'sort_order']],
-            'contents' => ['title' => 'اخبار، اطلاعیه‌ها و محتوا', 'table' => 'contents', 'columns' => ['id', 'type', 'title', 'status', 'important', 'approved_by']],
-            'guilds' => ['title' => 'اتحادیه‌ها', 'table' => 'guilds', 'columns' => ['id', 'title', 'chairman', 'phone', 'complaints_enabled', 'members_count']],
-            'guild_members' => ['title' => 'اعضای اتحادیه‌ها', 'table' => 'guild_members', 'columns' => ['id', 'guild_id', 'name', 'mobile', 'business_name']],
-            'sms_messages' => ['title' => 'پیامک‌ها', 'table' => 'sms_messages', 'columns' => ['id', 'guild_id', 'recipient_type', 'recipient_mobile', 'status']],
-            'home_sections' => ['title' => 'سکشن‌های صفحه اصلی', 'table' => 'home_sections', 'columns' => ['id', 'key', 'title', 'enabled', 'sort_order']],
-            'advertisements' => ['title' => 'تبلیغات', 'table' => 'advertisements', 'columns' => ['id', 'position', 'title', 'url', 'active']],
-            'complaints' => ['title' => 'شکایات', 'table' => 'complaints', 'columns' => ['id', 'tracking_code', 'guild_id', 'name', 'mobile', 'status']],
-            'tourism_places' => ['title' => 'گردشگری', 'table' => 'tourism_places', 'columns' => ['id', 'title', 'category_id', 'enabled']],
-            'systems' => ['title' => 'سامانه‌ها', 'table' => 'systems', 'columns' => ['id', 'title', 'url', 'enabled']],
-        ];
+        $modules = adminModules();
         abort_unless(isset($modules[$module]), 404);
         $meta = $modules[$module];
         $rows = Schema::hasTable($meta['table']) ? DB::table($meta['table'])->latest('id')->limit(100)->get()->map(fn ($row) => (array) $row)->all() : [];
 
         return view('admin.module', asnafViewData([
+            'module' => $module,
             'title' => $meta['title'],
             'rows' => $rows,
             'columns' => $meta['columns'],
-            'labels' => ['id' => 'شناسه', 'title' => 'عنوان', 'status' => 'وضعیت', 'url' => 'لینک', 'name' => 'نام'],
+            'editable' => $meta['editable'],
+            'labels' => adminLabels(),
         ]));
     })->name('module');
+
+    Route::get('/module/{module}/{id}/edit', function (string $module, int $id) {
+        $modules = adminModules();
+        abort_unless(isset($modules[$module]), 404);
+        $meta = $modules[$module];
+        abort_unless(Schema::hasTable($meta['table']), 404);
+        $row = (array) DB::table($meta['table'])->where('id', $id)->first() ?: abort(404);
+
+        return view('admin.module-edit', asnafViewData([
+            'module' => $module,
+            'title' => 'ویرایش '.$meta['title'],
+            'row' => $row,
+            'editable' => $meta['editable'],
+            'labels' => adminLabels(),
+        ]));
+    })->name('module.edit');
+
+    Route::put('/module/{module}/{id}', function (string $module, int $id) {
+        $modules = adminModules();
+        abort_unless(isset($modules[$module]), 404);
+        $meta = $modules[$module];
+        abort_unless(Schema::hasTable($meta['table']), 404);
+        $payload = Arr::only(request()->except(['_token', '_method']), $meta['editable']);
+        foreach ($payload as $key => $value) {
+            if (in_array($key, ['enabled', 'active', 'important', 'complaints_enabled', 'sms_enabled', 'is_external'], true)) {
+                $payload[$key] = (bool) $value;
+            }
+        }
+        $payload['updated_at'] = now();
+        DB::table($meta['table'])->where('id', $id)->update($payload);
+
+        return redirect()->route('admin.module', $module)->with('status', 'تغییرات با موفقیت ذخیره شد.');
+    })->name('module.update');
 });

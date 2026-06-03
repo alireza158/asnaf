@@ -84,7 +84,7 @@
         <div class="footer-divider"></div>
         <div class="footer-orgs">@foreach($systems as $system)<a href="{{ $system['url'] }}">{{ $system['title'] }}</a>@endforeach</div>
         <div class="footer-divider"></div>
-        <div class="footer-bottom"><p>تمام حقوق برای {{ $site['name'] }} محفوظ است.</p><a href="{{ route('admin.dashboard') }}">ورود به پنل مدیریت</a></div>
+        <div class="footer-bottom"><p>تمام حقوق برای {{ $site['name'] }} محفوظ است.</p><div class="auth-footer-links">@auth<a href="{{ route('admin.dashboard') }}">پنل مدیریت</a><form method="post" action="{{ route('logout') }}">@csrf<button type="submit">خروج</button></form>@else<a href="{{ route('login') }}">ورود</a><a href="{{ route('register') }}">ثبت‌نام</a>@endauth</div></div>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
