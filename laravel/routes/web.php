@@ -148,6 +148,7 @@ function asnafViewData(array $extra = []): array
 
     return array_merge($data, [
         'jalaliDate' => JalaliDate::today(),
+        'topLinks' => $data['top_links'] ?? [],
         'homeSections' => collect($data['home_sections'])->sortBy('order')->values()->all(),
         'importantNews' => collect($data['news'])->where('important', true)->where('status', 'published')->values(),
         'managerMessages' => $data['manager_messages'],
