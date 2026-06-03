@@ -170,7 +170,10 @@ function adminModules(): array
 
 function adminModuleGroups(): array
 {
-    return collect(adminModules())->groupBy('group')->all();
+    return collect(adminModules())
+        ->groupBy('group', true)
+        ->map(fn ($items) => $items->all())
+        ->all();
 }
 
 
