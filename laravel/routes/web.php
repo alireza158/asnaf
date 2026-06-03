@@ -173,6 +173,43 @@ function adminModuleGroups(): array
     return collect(adminModules())->groupBy('group')->all();
 }
 
+
+function adminSafeHasTable(string $table): bool
+{
+    try {
+        return Schema::hasTable($table);
+    } catch (Throwable) {
+        return false;
+    }
+}
+
+function adminRows(string $table): array
+{
+    if (! adminSafeHasTable($table)) {
+        return [];
+    }
+
+    return DB::table($table)->latest('id')->limit(100)->get()->map(fn ($row) => (array) $row)->all();
+}
+
+function adminNormalizePayload(array $payload): array
+{
+    foreach ($payload as $key => $value) {
+        if (in_array($key, ['enabled', 'active', 'important', 'complaints_enabled', 'sms_enabled', 'is_external'], true)) {
+            $payload[$key] = (bool) $value;
+        }
+        if (in_array($key, ['value', 'permissions', 'features', 'gallery', 'settings'], true) && is_string($value)) {
+            $decoded = json_decode($value, true);
+            $payload[$key] = json_last_error() === JSON_ERROR_NONE ? json_encode($decoded, JSON_UNESCAPED_UNICODE) : json_encode($value, JSON_UNESCAPED_UNICODE);
+        }
+        if ($value === '') {
+            $payload[$key] = null;
+        }
+    }
+
+    return $payload;
+}
+
 function adminLabels(): array
 {
     return [
@@ -335,7 +372,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         $modules = adminModules();
         abort_unless(isset($modules[$module]), 404);
         $meta = $modules[$module];
-        $rows = Schema::hasTable($meta['table']) ? DB::table($meta['table'])->latest('id')->limit(100)->get()->map(fn ($row) => (array) $row)->all() : [];
+        $rows = adminRows($meta['table']);
 
         return view('admin.module', asnafViewData([
             'module' => $module,
@@ -347,11 +384,39 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         ]));
     })->name('module');
 
+    Route::get('/module/{module}/create', function (string $module) {
+        $modules = adminModules();
+        abort_unless(isset($modules[$module]), 404);
+        $meta = $modules[$module];
+
+        return view('admin.module-edit', asnafViewData([
+            'module' => $module,
+            'title' => 'افزودن '.$meta['title'],
+            'row' => ['id' => null],
+            'editable' => $meta['editable'],
+            'labels' => adminLabels(),
+            'isCreate' => true,
+        ]));
+    })->name('module.create');
+
+    Route::post('/module/{module}', function (string $module) {
+        $modules = adminModules();
+        abort_unless(isset($modules[$module]), 404);
+        $meta = $modules[$module];
+        abort_unless(adminSafeHasTable($meta['table']), 404);
+        $payload = adminNormalizePayload(Arr::only(request()->except(['_token', '_method']), $meta['editable']));
+        $payload['created_at'] = now();
+        $payload['updated_at'] = now();
+        DB::table($meta['table'])->insert($payload);
+
+        return redirect()->route('admin.module', $module)->with('status', 'رکورد جدید با موفقیت ثبت شد.');
+    })->name('module.store');
+
     Route::get('/module/{module}/{id}/edit', function (string $module, int $id) {
         $modules = adminModules();
         abort_unless(isset($modules[$module]), 404);
         $meta = $modules[$module];
-        abort_unless(Schema::hasTable($meta['table']), 404);
+        abort_unless(adminSafeHasTable($meta['table']), 404);
         $row = (array) DB::table($meta['table'])->where('id', $id)->first() ?: abort(404);
 
         return view('admin.module-edit', asnafViewData([
@@ -367,13 +432,8 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
         $modules = adminModules();
         abort_unless(isset($modules[$module]), 404);
         $meta = $modules[$module];
-        abort_unless(Schema::hasTable($meta['table']), 404);
-        $payload = Arr::only(request()->except(['_token', '_method']), $meta['editable']);
-        foreach ($payload as $key => $value) {
-            if (in_array($key, ['enabled', 'active', 'important', 'complaints_enabled', 'sms_enabled', 'is_external'], true)) {
-                $payload[$key] = (bool) $value;
-            }
-        }
+        abort_unless(adminSafeHasTable($meta['table']), 404);
+        $payload = adminNormalizePayload(Arr::only(request()->except(['_token', '_method']), $meta['editable']));
         $payload['updated_at'] = now();
         DB::table($meta['table'])->where('id', $id)->update($payload);
 

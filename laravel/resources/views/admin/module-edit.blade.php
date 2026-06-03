@@ -7,7 +7,7 @@
         <a class="btn btn-outline-secondary rounded-pill px-4" href="{{ route('admin.module', $module) }}">بازگشت به لیست</a>
     </div>
     <div class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 p-lg-5">
-        <form method="post" action="{{ route('admin.module.update', [$module, $row['id']]) }}" class="row g-3">@csrf @method('PUT')
+        <form method="post" action="{{ ! empty($isCreate) ? route('admin.module.store', $module) : route('admin.module.update', [$module, $row['id']]) }}" class="row g-3">@csrf @if(empty($isCreate)) @method('PUT') @endif
             @foreach($editable as $field)
                 @php($value = old($field, $row[$field] ?? ''))
                 <div class="col-12 {{ \Illuminate\Support\Str::contains($field, ['content', 'summary', 'body', 'value', 'permissions', 'features', 'gallery', 'settings']) ? '' : 'col-lg-6' }}">
@@ -21,7 +21,7 @@
                     @endif
                 </div>
             @endforeach
-            <div class="col-12"><button class="btn btn-primary rounded-pill px-5">ذخیره تغییرات</button></div>
+            <div class="col-12"><button class="btn btn-primary rounded-pill px-5">{{ ! empty($isCreate) ? 'ثبت رکورد' : 'ذخیره تغییرات' }}</button></div>
         </form>
     </div></div>
 </div>

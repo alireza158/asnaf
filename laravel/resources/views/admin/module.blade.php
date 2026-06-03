@@ -4,7 +4,7 @@
 <div class="container-fluid px-0">
     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
         <div><span class="badge text-bg-secondary mb-2">{{ $jalaliDate }}</span><h1 class="h3 fw-black mb-1">{{ $title }}</h1><p class="text-muted mb-0">نمایش مرتب رکوردهای دیتابیس با جدول Bootstrap و امکان ویرایش سریع.</p></div>
-        <a class="btn btn-outline-secondary rounded-pill px-4" href="{{ route('admin.dashboard') }}">بازگشت</a>
+        <div class="d-flex gap-2"><a class="btn btn-primary rounded-pill px-4" href="{{ route('admin.module.create', $module) }}">افزودن رکورد</a><a class="btn btn-outline-secondary rounded-pill px-4" href="{{ route('admin.dashboard') }}">بازگشت</a></div>
     </div>
     @if(session('status'))<div class="alert alert-success rounded-4 shadow-sm">{{ session('status') }}</div>@endif
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
