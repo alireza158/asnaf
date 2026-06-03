@@ -296,7 +296,63 @@ Route::get('/guilds', fn () => view('site.list', asnafViewData([
     'description' => 'هر اتحادیه صفحه مستقل، امکانات اختصاصی، عضو، پیامک و تنظیم نمایش شکایت دارد.',
     'items' => asnafData()['guilds'],
 ])))->name('guilds.index');
-Route::get('/guilds/{slug}', fn (string $slug) => view('site.detail', asnafViewData(['item' => findBySlug(asnafData()['guilds'], $slug)])))->name('guilds.show');
+Route::get('/guilds/{slug}', function (string $slug) {
+    $data = asnafData();
+    $guild = findBySlug($data['guilds'], $slug);
+    $guildId = adminSafeHasTable('guilds') ? DB::table('guilds')->where('slug', $slug)->value('id') : null;
+    $members = ($guildId && adminSafeHasTable('guild_members'))
+        ? DB::table('guild_members')->where('guild_id', $guildId)->get()->map(fn ($member) => (array) $member)->all()
+        : [];
+    if (! $members) {
+        $members = [
+            ['name' => $guild['chairman'] ?: 'رئیس اتحادیه', 'business_name' => 'رئیس اتحادیه'],
+            ['name' => 'کارشناس اتحادیه', 'business_name' => 'کارشناس رسیدگی'],
+            ['name' => 'بازرس اتحادیه', 'business_name' => 'بازرسی و نظارت'],
+            ['name' => 'مسئول آموزش', 'business_name' => 'آموزش اعضا'],
+        ];
+    }
+    $news = collect($data['news'])->take(4)->values()->all();
+    $announcements = collect($data['news'])->where('type', 'اطلاعیه')->values()->all();
+    if (! $announcements) $announcements = $news;
+    $gallery = collect($news)->flatMap(fn ($item) => $item['gallery'] ?? [])->filter()->take(4)->values()->all();
+    if (! $gallery) $gallery = array_fill(0, 4, $data['site']['hero_image']);
+
+    return view('site.guild-detail', asnafViewData([
+        'guild' => $guild,
+        'members' => $members,
+        'commissions' => $data['commissions'],
+        'news' => $news,
+        'announcements' => $announcements,
+        'gallery' => $gallery,
+        'rules' => [
+            ['icon' => '📋', 'title' => 'دستورالعمل فعالیت صنفی', 'summary' => 'ضوابط فعالیت، تمدید پروانه و مدارک مورد نیاز اعضای اتحادیه.'],
+            ['icon' => '⚖️', 'title' => 'رسیدگی به شکایات', 'summary' => 'فرآیند ثبت، ارجاع، بررسی و پاسخ‌دهی به شکایات مردمی.'],
+            ['icon' => '🧾', 'title' => 'صدور فاکتور و شفافیت', 'summary' => 'الزامات ثبت اطلاعات فروش، خدمات و اطلاع‌رسانی به مصرف‌کننده.'],
+            ['icon' => '🛡️', 'title' => 'بازرسی و نظارت', 'summary' => 'برنامه‌های نظارتی اتحادیه و تعامل با اتاق اصناف.'],
+        ],
+        'articles' => [
+            ['title' => 'راهنمای استفاده از خدمات '.$guild['title'], 'summary' => 'نکات کاربردی برای اعضا و مراجعه‌کنندگان این اتحادیه.'],
+            ['title' => 'حقوق مصرف‌کننده در '.$guild['category'], 'summary' => 'آشنایی با حقوق شهروندان و وظایف واحدهای صنفی.'],
+            ['title' => 'آموزش قوانین نظام صنفی', 'summary' => 'مرور الزامات قانونی و اداری برای فعالان صنفی.'],
+        ],
+        'prices' => [
+            ['title' => 'تعرفه خدمات پایه', 'amount' => 'طبق نرخ مصوب', 'type' => 'مصوب اتحادیه'],
+            ['title' => 'هزینه کارشناسی پرونده', 'amount' => 'قابل تنظیم در پنل', 'type' => 'خدمات اداری'],
+            ['title' => 'هزینه آموزش اعضا', 'amount' => 'قابل تنظیم در پنل', 'type' => 'آموزشی'],
+        ],
+        'minutes' => [
+            ['title' => 'صورتجلسه هیئت مدیره '.$guild['title']],
+            ['title' => 'صورتجلسه کمیسیون رسیدگی و نظارت'],
+            ['title' => 'صورتجلسه برنامه‌ریزی آموزش اعضا'],
+        ],
+        'educations' => [
+            ['icon' => '📚', 'title' => 'قوانین نظام صنفی', 'summary' => 'آموزش مقررات و تکالیف قانونی'],
+            ['icon' => '🔍', 'title' => 'بازرسی و استاندارد', 'summary' => 'آشنایی با شاخص‌های نظارت'],
+            ['icon' => '💰', 'title' => 'مالیات و حسابداری', 'summary' => 'اصول پرونده مالیاتی اعضا'],
+            ['icon' => '🛡️', 'title' => 'حقوق مصرف‌کننده', 'summary' => 'صیانت از حقوق شهروندان'],
+        ],
+    ]));
+})->name('guilds.show');
 
 Route::get('/tourism', fn () => view('site.list', asnafViewData([
     'title' => 'گردشگری و بازار گرگان',
