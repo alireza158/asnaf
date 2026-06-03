@@ -1,13 +1,145 @@
 <?php
 
+use App\Models\Complaint;
 use App\Support\JalaliDate;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
+
+function asnafJson(mixed $value, mixed $default = []): mixed
+{
+    if (is_array($value)) {
+        return $value;
+    }
+
+    if ($value === null || $value === '') {
+        return $default;
+    }
+
+    return json_decode((string) $value, true) ?: $default;
+}
 
 function asnafData(): array
 {
-    return config('asnaf');
+    try {
+        if (! Schema::hasTable('site_settings')) {
+            return config('asnaf');
+        }
+    } catch (Throwable) {
+        return config('asnaf');
+    }
+
+    $settings = DB::table('site_settings')->pluck('value', 'key')->map(fn ($value) => asnafJson($value))->all();
+    $menus = [];
+    $menuRows = DB::table('menus')->where('enabled', true)->orderBy('sort_order')->get()->groupBy('location');
+    foreach ($menuRows as $location => $rows) {
+        $parents = $rows->whereNull('parent_id');
+        $menus[$location] = $parents->map(function ($parent) use ($rows): array {
+            return [
+                'title' => $parent->title,
+                'url' => $parent->url,
+                'icon' => $parent->icon,
+                'children' => $rows->where('parent_id', $parent->id)->values()->map(fn ($child) => [
+                    'title' => $child->title,
+                    'url' => $child->url,
+                    'icon' => $child->icon,
+                ])->all(),
+            ];
+        })->values()->all();
+    }
+
+    $services = DB::table('service_pages')->where('status', 'published')->orderBy('sort_order')->get()->map(fn ($item) => (array) $item)->all();
+    $news = DB::table('contents')->orderByDesc('important')->orderByDesc('published_at')->get()->map(fn ($item) => [
+        'slug' => $item->slug,
+        'type' => $item->type,
+        'title' => $item->title,
+        'important' => (bool) $item->important,
+        'status' => $item->status,
+        'published_at' => $item->published_at ? JalaliDate::format(new DateTimeImmutable($item->published_at)) : 'در انتظار انتشار',
+        'summary' => $item->summary,
+        'content' => $item->content,
+        'gallery' => asnafJson($item->gallery),
+        'approval' => $item->approved_by ?: ($item->status === 'published' ? 'منتشر شده' : 'در انتظار تایید'),
+        'video_type' => $item->video_type,
+        'video_url' => $item->video_url,
+    ])->all();
+
+    $guilds = DB::table('guilds')
+        ->leftJoin('categories', 'categories.id', '=', 'guilds.category_id')
+        ->select('guilds.*', 'categories.title as category')
+        ->orderBy('guilds.id')
+        ->get()
+        ->map(fn ($guild) => [
+            'slug' => $guild->slug,
+            'title' => $guild->title,
+            'category' => $guild->category,
+            'chairman' => $guild->chairman,
+            'phone' => $guild->phone,
+            'complaints_enabled' => (bool) $guild->complaints_enabled,
+            'features' => asnafJson($guild->features),
+            'members_count' => $guild->members_count,
+            'summary' => $guild->summary,
+            'content' => $guild->content,
+        ])->all();
+
+    $commissions = DB::table('commissions')->orderBy('sort_order')->get()->map(function ($commission): array {
+        return [
+            'slug' => $commission->slug,
+            'title' => $commission->title,
+            'summary' => $commission->summary,
+            'content' => $commission->content,
+            'meetings' => DB::table('commission_meetings')->where('commission_id', $commission->id)->orderByDesc('held_at')->pluck('title')->all(),
+        ];
+    })->all();
+
+    $tourism = DB::table('tourism_places')
+        ->leftJoin('categories', 'categories.id', '=', 'tourism_places.category_id')
+        ->select('tourism_places.*', 'categories.title as category')
+        ->where('tourism_places.enabled', true)
+        ->orderBy('tourism_places.id')
+        ->get()
+        ->map(fn ($place) => [
+            'slug' => $place->slug,
+            'title' => $place->title,
+            'category' => $place->category,
+            'summary' => $place->summary,
+            'content' => $place->content,
+            'image' => $place->image ?: 'theme/assets/img/asnaf-gorgan-default.jpg',
+        ])->all();
+
+    return [
+        'site' => $settings['site'] ?? config('asnaf.site'),
+        'top_links' => $settings['top_links'] ?? config('asnaf.top_links'),
+        'menus' => array_replace_recursive(config('asnaf.menus'), $menus),
+        'home_sections' => DB::table('home_sections')->orderBy('sort_order')->get()->map(fn ($section) => [
+            'key' => $section->key,
+            'title' => $section->title,
+            'enabled' => (bool) $section->enabled,
+            'order' => $section->sort_order,
+            'settings' => asnafJson($section->settings),
+        ])->all(),
+        'services' => $services,
+        'news' => $news,
+        'guilds' => $guilds,
+        'commissions' => $commissions,
+        'tourism' => $tourism,
+        'systems' => DB::table('systems')->where('enabled', true)->orderBy('id')->get()->map(fn ($item) => (array) $item)->all(),
+        'ads' => DB::table('advertisements')->orderBy('id')->get()->map(fn ($item) => [
+            'position' => $item->position,
+            'title' => $item->title,
+            'url' => $item->url,
+            'image' => $item->image,
+            'active' => (bool) $item->active,
+        ])->all(),
+        'roles' => DB::table('roles')->orderBy('id')->get()->map(fn ($role) => [
+            'name' => $role->name,
+            'permissions' => asnafJson($role->permissions),
+        ])->all(),
+        'workflow' => $settings['workflow'] ?? config('asnaf.workflow'),
+        'manager_messages' => $settings['manager_messages'] ?? config('asnaf.manager_messages'),
+    ];
 }
 
 function asnafViewData(array $extra = []): array
@@ -91,9 +223,23 @@ Route::get('/contact', fn () => view('site.list', asnafViewData(['title' => 'ت�
 ]]])))->name('contact');
 
 Route::get('/complaints/create', fn () => view('site.complaint', asnafViewData()))->name('complaints.create');
-Route::post('/complaints', fn () => view('site.complaint', asnafViewData([
-    'trackingCode' => 'ASN-'.JalaliDate::faNumber(now()->format('Ymd-His')).'-'.JalaliDate::faNumber(random_int(100, 999)),
-])))->name('complaints.store');
+Route::post('/complaints', function () {
+    $trackingCode = 'ASN-'.JalaliDate::faNumber(now()->format('Ymd-His')).'-'.JalaliDate::faNumber(random_int(100, 999));
+
+    if (Schema::hasTable('complaints')) {
+        $guildId = DB::table('guilds')->where('title', request('guild'))->value('id');
+        Complaint::create([
+            'guild_id' => $guildId,
+            'tracking_code' => $trackingCode,
+            'name' => (string) request('name'),
+            'mobile' => (string) request('mobile'),
+            'body' => (string) request('body'),
+            'status' => 'new',
+        ]);
+    }
+
+    return view('site.complaint', asnafViewData(['trackingCode' => $trackingCode]));
+})->name('complaints.store');
 
 Route::get('/search', function () {
     $query = trim((string) request('q'));
@@ -106,4 +252,29 @@ Route::get('/search', function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn () => view('admin.dashboard', asnafViewData()))->name('dashboard');
+    Route::get('/module/{module}', function (string $module) {
+        $modules = [
+            'roles' => ['title' => 'سطوح دسترسی', 'table' => 'roles', 'columns' => ['id', 'name', 'permissions']],
+            'menus' => ['title' => 'منوهای پویا', 'table' => 'menus', 'columns' => ['id', 'location', 'title', 'url', 'parent_id', 'sort_order']],
+            'contents' => ['title' => 'اخبار، اطلاعیه‌ها و محتوا', 'table' => 'contents', 'columns' => ['id', 'type', 'title', 'status', 'important', 'approved_by']],
+            'guilds' => ['title' => 'اتحادیه‌ها', 'table' => 'guilds', 'columns' => ['id', 'title', 'chairman', 'phone', 'complaints_enabled', 'members_count']],
+            'guild_members' => ['title' => 'اعضای اتحادیه‌ها', 'table' => 'guild_members', 'columns' => ['id', 'guild_id', 'name', 'mobile', 'business_name']],
+            'sms_messages' => ['title' => 'پیامک‌ها', 'table' => 'sms_messages', 'columns' => ['id', 'guild_id', 'recipient_type', 'recipient_mobile', 'status']],
+            'home_sections' => ['title' => 'سکشن‌های صفحه اصلی', 'table' => 'home_sections', 'columns' => ['id', 'key', 'title', 'enabled', 'sort_order']],
+            'advertisements' => ['title' => 'تبلیغات', 'table' => 'advertisements', 'columns' => ['id', 'position', 'title', 'url', 'active']],
+            'complaints' => ['title' => 'شکایات', 'table' => 'complaints', 'columns' => ['id', 'tracking_code', 'guild_id', 'name', 'mobile', 'status']],
+            'tourism_places' => ['title' => 'گردشگری', 'table' => 'tourism_places', 'columns' => ['id', 'title', 'category_id', 'enabled']],
+            'systems' => ['title' => 'سامانه‌ها', 'table' => 'systems', 'columns' => ['id', 'title', 'url', 'enabled']],
+        ];
+        abort_unless(isset($modules[$module]), 404);
+        $meta = $modules[$module];
+        $rows = Schema::hasTable($meta['table']) ? DB::table($meta['table'])->latest('id')->limit(100)->get()->map(fn ($row) => (array) $row)->all() : [];
+
+        return view('admin.module', asnafViewData([
+            'title' => $meta['title'],
+            'rows' => $rows,
+            'columns' => $meta['columns'],
+            'labels' => ['id' => 'شناسه', 'title' => 'عنوان', 'status' => 'وضعیت', 'url' => 'لینک', 'name' => 'نام'],
+        ]));
+    })->name('module');
 });

@@ -10,13 +10,13 @@
         <div class="admin-brand">پنل مدیریت<br><span>اتاق اصناف گرگان</span></div>
         <nav>
             <a href="{{ route('admin.dashboard') }}">داشبورد</a>
-            <a href="#roles">سطوح دسترسی</a>
-            <a href="#menus">منوهای پویا</a>
-            <a href="#content">اخبار و محتوا</a>
-            <a href="#guilds">اتحادیه‌ها و اعضا</a>
-            <a href="#sms">پیامک اطلاع‌رسانی</a>
-            <a href="#home-builder">صفحه اصلی</a>
-            <a href="#ads">تبلیغات</a>
+            <a href="{{ route('admin.module', 'roles') }}">سطوح دسترسی</a>
+            <a href="{{ route('admin.module', 'menus') }}">منوهای پویا</a>
+            <a href="{{ route('admin.module', 'contents') }}">اخبار و محتوا</a>
+            <a href="{{ route('admin.module', 'guilds') }}">اتحادیه‌ها و اعضا</a>
+            <a href="{{ route('admin.module', 'sms_messages') }}">پیامک اطلاع‌رسانی</a>
+            <a href="{{ route('admin.module', 'home_sections') }}">صفحه اصلی</a>
+            <a href="{{ route('admin.module', 'advertisements') }}">تبلیغات</a>
         </nav>
     </aside>
     <main class="admin-main">@yield('content')</main>
