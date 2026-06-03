@@ -149,22 +149,22 @@ function asnafData(): array
 function adminModules(): array
 {
     return [
-        'site_settings' => ['group' => 'ساختار سایت', 'title' => 'تنظیمات سایت', 'table' => 'site_settings', 'columns' => ['id', 'key', 'value'], 'editable' => ['key', 'value']],
-        'menus' => ['group' => 'ساختار سایت', 'title' => 'منوهای پویا', 'table' => 'menus', 'columns' => ['id', 'location', 'title', 'url', 'parent_id', 'sort_order', 'enabled'], 'editable' => ['location', 'parent_id', 'title', 'url', 'icon', 'is_external', 'enabled', 'sort_order']],
-        'home_sections' => ['group' => 'ساختار سایت', 'title' => 'صفحه اصلی', 'table' => 'home_sections', 'columns' => ['id', 'key', 'title', 'enabled', 'sort_order'], 'editable' => ['key', 'title', 'enabled', 'sort_order', 'settings']],
-        'advertisements' => ['group' => 'ساختار سایت', 'title' => 'تبلیغات', 'table' => 'advertisements', 'columns' => ['id', 'position', 'title', 'url', 'active'], 'editable' => ['position', 'title', 'url', 'image', 'active', 'starts_at', 'ends_at']],
-        'contents' => ['group' => 'محتوا', 'title' => 'اخبار و اطلاعیه‌ها', 'table' => 'contents', 'columns' => ['id', 'type', 'title', 'status', 'important', 'approved_by'], 'editable' => ['guild_id', 'category_id', 'slug', 'type', 'title', 'summary', 'content', 'status', 'important', 'approved_by', 'gallery', 'video_type', 'video_url']],
-        'service_pages' => ['group' => 'محتوا', 'title' => 'خدمات الکترونیک', 'table' => 'service_pages', 'columns' => ['id', 'title', 'slug', 'status', 'sort_order'], 'editable' => ['slug', 'icon', 'title', 'summary', 'content', 'status', 'sort_order']],
-        'categories' => ['group' => 'محتوا', 'title' => 'دسته‌بندی‌ها', 'table' => 'categories', 'columns' => ['id', 'type', 'title', 'slug'], 'editable' => ['type', 'title', 'slug', 'description']],
-        'systems' => ['group' => 'محتوا', 'title' => 'سامانه‌ها', 'table' => 'systems', 'columns' => ['id', 'title', 'url', 'enabled'], 'editable' => ['slug', 'title', 'url', 'description', 'is_external', 'enabled']],
-        'guilds' => ['group' => 'اتحادیه و خدمات', 'title' => 'اتحادیه‌ها', 'table' => 'guilds', 'columns' => ['id', 'title', 'chairman', 'phone', 'complaints_enabled', 'members_count'], 'editable' => ['category_id', 'slug', 'title', 'chairman', 'phone', 'complaints_enabled', 'features', 'members_count', 'summary', 'content']],
-        'guild_members' => ['group' => 'اتحادیه و خدمات', 'title' => 'اعضای اتحادیه', 'table' => 'guild_members', 'columns' => ['id', 'guild_id', 'name', 'mobile', 'business_name'], 'editable' => ['guild_id', 'name', 'mobile', 'business_name', 'license_number', 'sms_enabled']],
-        'complaints' => ['group' => 'اتحادیه و خدمات', 'title' => 'شکایات', 'table' => 'complaints', 'columns' => ['id', 'tracking_code', 'guild_id', 'name', 'mobile', 'status'], 'editable' => ['guild_id', 'tracking_code', 'name', 'mobile', 'body', 'status']],
-        'sms_messages' => ['group' => 'اتحادیه و خدمات', 'title' => 'پیامک‌ها', 'table' => 'sms_messages', 'columns' => ['id', 'guild_id', 'recipient_type', 'recipient_mobile', 'status'], 'editable' => ['guild_id', 'sent_by', 'recipient_type', 'recipient_mobile', 'body', 'status']],
-        'commissions' => ['group' => 'کمیسیون و گردشگری', 'title' => 'کمیسیون‌ها', 'table' => 'commissions', 'columns' => ['id', 'title', 'slug', 'sort_order'], 'editable' => ['slug', 'title', 'summary', 'content', 'sort_order']],
-        'commission_meetings' => ['group' => 'کمیسیون و گردشگری', 'title' => 'جلسات کمیسیون‌ها', 'table' => 'commission_meetings', 'columns' => ['id', 'commission_id', 'title', 'held_at'], 'editable' => ['commission_id', 'title', 'held_at', 'summary']],
-        'tourism_places' => ['group' => 'کمیسیون و گردشگری', 'title' => 'گردشگری', 'table' => 'tourism_places', 'columns' => ['id', 'title', 'category_id', 'enabled'], 'editable' => ['category_id', 'slug', 'title', 'summary', 'content', 'image', 'enabled']],
-        'roles' => ['group' => 'کاربران', 'title' => 'سطوح دسترسی', 'table' => 'roles', 'columns' => ['id', 'name', 'permissions'], 'editable' => ['name', 'permissions']],
+        'site_settings' => ['group' => 'ساختار سایت', 'title' => 'تنظیمات سایت', 'description' => 'نام سایت، اطلاعات تماس، متن‌های ثابت هدر و فوتر را از اینجا مدیریت کنید.', 'table' => 'site_settings', 'columns' => ['id', 'key', 'value'], 'editable' => ['key', 'value']],
+        'menus' => ['group' => 'ساختار سایت', 'title' => 'منوهای پویا', 'description' => 'منوی اصلی، دسترسی سریع و فوتر را مثل وردپرس با عنوان، لینک، والد و ترتیب مدیریت کنید.', 'table' => 'menus', 'columns' => ['id', 'location', 'title', 'url', 'parent_id', 'sort_order', 'enabled'], 'editable' => ['location', 'parent_id', 'title', 'url', 'icon', 'is_external', 'enabled', 'sort_order']],
+        'home_sections' => ['group' => 'ساختار سایت', 'title' => 'صفحه اصلی', 'description' => 'بخش‌های صفحه اصلی را فعال/غیرفعال کنید و ترتیب نمایش آن‌ها را تغییر دهید.', 'table' => 'home_sections', 'columns' => ['id', 'key', 'title', 'enabled', 'sort_order'], 'editable' => ['key', 'title', 'enabled', 'sort_order', 'settings']],
+        'advertisements' => ['group' => 'ساختار سایت', 'title' => 'تبلیغات', 'description' => 'بنرهای تبلیغاتی را برای جایگاه‌های قابل فهم مثل صفحه اصلی یا صفحه اتحادیه تنظیم کنید.', 'table' => 'advertisements', 'columns' => ['id', 'position', 'title', 'url', 'active'], 'editable' => ['position', 'title', 'url', 'image', 'active', 'starts_at', 'ends_at']],
+        'contents' => ['group' => 'محتوا', 'title' => 'اخبار و اطلاعیه‌ها', 'description' => 'خبر، اطلاعیه، گالری تصویر، ویدیو و وضعیت تایید/انتشار را مدیریت کنید.', 'table' => 'contents', 'columns' => ['id', 'type', 'title', 'status', 'important', 'approved_by'], 'editable' => ['guild_id', 'category_id', 'slug', 'type', 'title', 'summary', 'content', 'status', 'important', 'approved_by', 'gallery', 'video_type', 'video_url']],
+        'service_pages' => ['group' => 'محتوا', 'title' => 'خدمات الکترونیک', 'description' => 'کارت‌های خدمات بالای سایت و صفحات توضیحی هر خدمت را مدیریت کنید.', 'table' => 'service_pages', 'columns' => ['id', 'title', 'slug', 'status', 'sort_order'], 'editable' => ['slug', 'icon', 'title', 'summary', 'content', 'status', 'sort_order']],
+        'categories' => ['group' => 'محتوا', 'title' => 'دسته‌بندی‌ها', 'description' => 'دسته‌های اخبار، اتحادیه‌ها، خدمات و گردشگری را تعریف کنید.', 'table' => 'categories', 'columns' => ['id', 'type', 'title', 'slug'], 'editable' => ['type', 'title', 'slug', 'description']],
+        'systems' => ['group' => 'محتوا', 'title' => 'سامانه‌ها', 'description' => 'لینک سامانه‌های داخلی و خارجی را برای نمایش در سایت مدیریت کنید.', 'table' => 'systems', 'columns' => ['id', 'title', 'url', 'enabled'], 'editable' => ['slug', 'title', 'url', 'description', 'is_external', 'enabled']],
+        'guilds' => ['group' => 'اتحادیه و خدمات', 'title' => 'اتحادیه‌ها', 'description' => 'صفحه اختصاصی هر اتحادیه، وضعیت شکایت، امکانات و اطلاعات تماس را مدیریت کنید.', 'table' => 'guilds', 'columns' => ['id', 'title', 'chairman', 'phone', 'complaints_enabled', 'members_count'], 'editable' => ['category_id', 'slug', 'title', 'chairman', 'phone', 'complaints_enabled', 'features', 'members_count', 'summary', 'content']],
+        'guild_members' => ['group' => 'اتحادیه و خدمات', 'title' => 'اعضای اتحادیه', 'description' => 'اعضای هر اتحادیه و وضعیت دریافت پیامک آن‌ها را ثبت کنید.', 'table' => 'guild_members', 'columns' => ['id', 'guild_id', 'name', 'mobile', 'business_name'], 'editable' => ['guild_id', 'name', 'mobile', 'business_name', 'license_number', 'sms_enabled']],
+        'complaints' => ['group' => 'اتحادیه و خدمات', 'title' => 'شکایات', 'description' => 'شکایات ثبت‌شده، کد رهگیری و وضعیت رسیدگی را مدیریت کنید.', 'table' => 'complaints', 'columns' => ['id', 'tracking_code', 'guild_id', 'name', 'mobile', 'status'], 'editable' => ['guild_id', 'tracking_code', 'name', 'mobile', 'body', 'status']],
+        'sms_messages' => ['group' => 'اتحادیه و خدمات', 'title' => 'پیامک‌ها', 'description' => 'پیامک‌های ارسالی به اعضای اتحادیه یا شخص خاص را آماده و پیگیری کنید.', 'table' => 'sms_messages', 'columns' => ['id', 'guild_id', 'recipient_type', 'recipient_mobile', 'status'], 'editable' => ['guild_id', 'sent_by', 'recipient_type', 'recipient_mobile', 'body', 'status']],
+        'commissions' => ['group' => 'کمیسیون و گردشگری', 'title' => 'کمیسیون‌ها', 'description' => 'صفحات معرفی کمیسیون‌ها و شرح وظایف آن‌ها را مدیریت کنید.', 'table' => 'commissions', 'columns' => ['id', 'title', 'slug', 'sort_order'], 'editable' => ['slug', 'title', 'summary', 'content', 'sort_order']],
+        'commission_meetings' => ['group' => 'کمیسیون و گردشگری', 'title' => 'جلسات کمیسیون‌ها', 'description' => 'جلسات، تاریخ و خلاصه مصوبات هر کمیسیون را ثبت کنید.', 'table' => 'commission_meetings', 'columns' => ['id', 'commission_id', 'title', 'held_at'], 'editable' => ['commission_id', 'title', 'held_at', 'summary']],
+        'tourism_places' => ['group' => 'کمیسیون و گردشگری', 'title' => 'گردشگری', 'description' => 'مکان‌های گردشگری، تصویر، دسته‌بندی و توضیحات را مدیریت کنید.', 'table' => 'tourism_places', 'columns' => ['id', 'title', 'category_id', 'enabled'], 'editable' => ['category_id', 'slug', 'title', 'summary', 'content', 'image', 'enabled']],
+        'roles' => ['group' => 'کاربران', 'title' => 'سطوح دسترسی', 'description' => 'نقش‌ها و مجوزهای قابل تخصیص به کاربران پنل را تعریف کنید.', 'table' => 'roles', 'columns' => ['id', 'name', 'permissions'], 'editable' => ['name', 'permissions']],
     ];
 }
 
@@ -213,13 +213,46 @@ function adminNormalizePayload(array $payload): array
     return $payload;
 }
 
+
+function adminFieldMeta(): array
+{
+    return [
+        'position' => ['label' => 'جایگاه نمایش تبلیغ', 'help' => 'مشخص می‌کند بنر در کدام بخش سایت نمایش داده شود.', 'options' => ['hero-left' => 'صفحه اصلی - کنار اسلایدر', 'guild-page' => 'صفحه اتحادیه‌ها', 'footer' => 'فوتر سایت', 'sidebar' => 'ستون کناری صفحات']],
+        'location' => ['label' => 'محل نمایش منو', 'help' => 'primary یعنی منوی بالای سایت، quick یعنی دسترسی سریع، footer یعنی فوتر.', 'options' => ['primary' => 'منوی اصلی بالای سایت', 'quick' => 'دسترسی سریع صفحه اصلی', 'footer' => 'منوی فوتر']],
+        'parent_id' => ['label' => 'شناسه منوی والد', 'help' => 'اگر این آیتم زیرمنو است، شناسه منوی اصلی را وارد کنید؛ برای منوی اصلی خالی بگذارید.'],
+        'sort_order' => ['label' => 'ترتیب نمایش', 'help' => 'عدد کوچک‌تر زودتر نمایش داده می‌شود.'],
+        'url' => ['label' => 'لینک مقصد', 'help' => 'برای لینک داخلی مثل /news و برای لینک خارجی آدرس کامل مثل https://example.com وارد کنید.'],
+        'is_external' => ['label' => 'لینک خارجی است؟', 'help' => 'اگر لینک به سایتی خارج از همین سایت می‌رود، بله را انتخاب کنید.'],
+        'enabled' => ['label' => 'نمایش داده شود؟'],
+        'active' => ['label' => 'فعال است؟'],
+        'important' => ['label' => 'خبر مهم است؟'],
+        'complaints_enabled' => ['label' => 'ثبت شکایت برای این اتحادیه فعال باشد؟'],
+        'sms_enabled' => ['label' => 'دریافت پیامک فعال باشد؟'],
+        'status' => ['label' => 'وضعیت', 'options' => ['draft' => 'پیش‌نویس', 'pending' => 'در انتظار تایید', 'published' => 'منتشر شده', 'new' => 'جدید', 'reviewing' => 'در حال بررسی', 'closed' => 'بسته شده']],
+        'type' => ['label' => 'نوع محتوا/دسته', 'options' => ['خبر' => 'خبر', 'اطلاعیه' => 'اطلاعیه', 'guild' => 'اتحادیه', 'tourism' => 'گردشگری', 'content' => 'محتوا']],
+        'video_type' => ['label' => 'نوع ویدیو', 'options' => ['upload' => 'آپلود مستقیم', 'aparat' => 'لینک آپارات', 'external' => 'لینک خارجی']],
+        'recipient_type' => ['label' => 'گیرنده پیامک', 'options' => ['guild_members' => 'همه اعضای اتحادیه', 'single' => 'یک شماره خاص']],
+        'key' => ['label' => 'کلید تنظیمات', 'help' => 'کلید فنی تنظیمات؛ فقط در صورت نیاز تغییر دهید.'],
+        'value' => ['label' => 'مقدار تنظیمات', 'help' => 'می‌تواند متن یا JSON باشد. برای کاربران عادی بهتر است فقط متن‌های موجود را اصلاح کنید.'],
+        'slug' => ['label' => 'آدرس یکتا', 'help' => 'فقط حروف انگلیسی، عدد و خط تیره؛ مثال: market-news'],
+        'gallery' => ['label' => 'گالری تصاویر', 'help' => 'آدرس تصاویر را به‌صورت JSON یا متن وارد کنید.'],
+        'features' => ['label' => 'امکانات', 'help' => 'لیست امکانات را با JSON یا متن ساده وارد کنید.'],
+        'permissions' => ['label' => 'دسترسی‌ها', 'help' => 'دسترسی‌ها را به‌صورت لیست JSON یا متن وارد کنید.'],
+    ];
+}
+
+function adminFieldConfig(string $field): array
+{
+    return adminFieldMeta()[$field] ?? [];
+}
+
 function adminLabels(): array
 {
     return [
         'id' => 'شناسه', 'title' => 'عنوان', 'name' => 'نام', 'status' => 'وضعیت', 'url' => 'لینک', 'slug' => 'نامک',
         'location' => 'جایگاه', 'parent_id' => 'والد', 'sort_order' => 'ترتیب', 'enabled' => 'فعال', 'key' => 'کلید',
         'type' => 'نوع', 'summary' => 'خلاصه', 'content' => 'محتوا', 'permissions' => 'دسترسی‌ها', 'value' => 'مقدار',
-        'phone' => 'تلفن', 'mobile' => 'موبایل', 'body' => 'متن', 'important' => 'مهم', 'active' => 'فعال',
+        'phone' => 'تلفن', 'mobile' => 'موبایل', 'body' => 'متن', 'important' => 'مهم', 'active' => 'فعال', 'position' => 'جایگاه نمایش', 'location' => 'محل منو', 'parent_id' => 'والد', 'is_external' => 'لینک خارجی', 'category_id' => 'دسته‌بندی', 'guild_id' => 'اتحادیه', 'chairman' => 'رئیس اتحادیه', 'members_count' => 'تعداد اعضا', 'tracking_code' => 'کد رهگیری', 'recipient_type' => 'گیرنده', 'recipient_mobile' => 'موبایل گیرنده', 'approved_by' => 'تاییدکننده', 'video_type' => 'نوع ویدیو', 'video_url' => 'لینک ویدیو',
     ];
 }
 
@@ -384,6 +417,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
             'columns' => $meta['columns'],
             'editable' => $meta['editable'],
             'labels' => adminLabels(),
+            'meta' => $meta,
         ]));
     })->name('module');
 
@@ -398,6 +432,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
             'row' => ['id' => null],
             'editable' => $meta['editable'],
             'labels' => adminLabels(),
+            'meta' => $meta,
             'isCreate' => true,
         ]));
     })->name('module.create');
@@ -428,6 +463,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
             'row' => $row,
             'editable' => $meta['editable'],
             'labels' => adminLabels(),
+            'meta' => $meta,
         ]));
     })->name('module.edit');
 

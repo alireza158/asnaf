@@ -26,7 +26,7 @@
                                     <div class="list-group list-group-flush rounded-3 overflow-hidden">
                                         @foreach($groupModules as $moduleKey => $module)
                                             <a class="list-group-item list-group-item-action bg-transparent text-white-75 border-light border-opacity-10 d-flex justify-content-between align-items-center {{ request()->route('module') === $moduleKey ? 'active' : '' }}" href="{{ route('admin.module', $moduleKey) }}">
-                                                <span>{{ $module['title'] }}</span><small class="badge text-bg-light text-dark">{{ $module['table'] }}</small>
+                                                <span>{{ $module['title'] }}</span><small class="badge text-bg-light text-dark">مدیریت</small>
                                             </a>
                                         @endforeach
                                     </div>
