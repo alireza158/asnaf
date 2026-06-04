@@ -15,10 +15,31 @@
             @foreach($editable as $field)
                 @php($value = old($field, $row[$field] ?? ''))
                 @php($fieldConfig = adminFieldConfig($field))
-                @php($isLong = \Illuminate\Support\Str::contains($field, ['content', 'summary', 'body', 'value', 'permissions', 'features', 'gallery', 'settings']))
+                @php($isLong = \Illuminate\Support\Str::contains($field, ['content', 'summary', 'body', 'value', 'permissions', 'features', 'gallery', 'settings', 'items', 'subtitle']))
                 <div class="col-12 {{ $isLong ? '' : 'col-lg-6' }}">
                     <label class="form-label fw-bold">{{ $fieldConfig['label'] ?? $labels[$field] ?? $field }}</label>
-                    @if(isset($fieldConfig['options']))
+                    @if($field === 'guild_id' && adminSafeHasTable('guilds'))
+                        <select class="form-select rounded-3" name="{{ $field }}">
+                            <option value="">انتخاب اتحادیه...</option>
+                            @foreach(\Illuminate\Support\Facades\DB::table('guilds')->orderBy('title')->get(['id', 'title']) as $optionRow)
+                                <option value="{{ $optionRow->id }}" @selected((string) $value === (string) $optionRow->id)>{{ $optionRow->title }}</option>
+                            @endforeach
+                        </select>
+                    @elseif($field === 'category_id' && adminSafeHasTable('categories'))
+                        <select class="form-select rounded-3" name="{{ $field }}">
+                            <option value="">انتخاب دسته‌بندی...</option>
+                            @foreach(\Illuminate\Support\Facades\DB::table('categories')->orderBy('title')->get(['id', 'title', 'type']) as $optionRow)
+                                <option value="{{ $optionRow->id }}" @selected((string) $value === (string) $optionRow->id)>{{ $optionRow->title }} - {{ $optionRow->type }}</option>
+                            @endforeach
+                        </select>
+                    @elseif($field === 'commission_id' && adminSafeHasTable('commissions'))
+                        <select class="form-select rounded-3" name="{{ $field }}">
+                            <option value="">انتخاب کمیسیون...</option>
+                            @foreach(\Illuminate\Support\Facades\DB::table('commissions')->orderBy('title')->get(['id', 'title']) as $optionRow)
+                                <option value="{{ $optionRow->id }}" @selected((string) $value === (string) $optionRow->id)>{{ $optionRow->title }}</option>
+                            @endforeach
+                        </select>
+                    @elseif(isset($fieldConfig['options']))
                         <select class="form-select rounded-3" name="{{ $field }}">
                             <option value="">انتخاب کنید...</option>
                             @foreach($fieldConfig['options'] as $optionValue => $optionLabel)

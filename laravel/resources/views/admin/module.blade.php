@@ -30,6 +30,30 @@
         </div>
     @endif
 
+    @if($module === 'guild_page_blocks')
+        <div class="alert alert-info border-0 rounded-4 shadow-sm mb-4">
+            <strong>راهنمای ساده:</strong> برای هر اتحادیه یک رکورد جدا برای «قوانین»، «مقالات»، «نرخ‌نامه»، «صورتجلسه»، «آموزش»، «گالری» و «تماس» بسازید. عنوان و آیتم‌های هر رکورد مستقیم در صفحه همان اتحادیه نمایش داده می‌شود.
+        </div>
+        <div class="row g-3 mb-4">
+            @foreach(collect($rows)->groupBy('guild_id') as $guildId => $blockRows)
+                <div class="col-lg-6"><div class="card border-0 shadow-sm rounded-4 h-100"><div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-3">
+                        <div><span class="badge text-bg-light mb-2">{{ $blockRows->first()['guild_title'] ?? ('اتحادیه #'.$guildId) }}</span><h2 class="h6 fw-bold mb-0">بخش‌های صفحه جزئیات</h2></div>
+                        <span class="badge text-bg-primary">{{ \App\Support\JalaliDate::faNumber(count($blockRows)) }} بخش</span>
+                    </div>
+                    <div class="list-group list-group-flush">
+                        @foreach($blockRows->sortBy('sort_order') as $blockRow)
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-start" href="{{ route('admin.module.edit', [$module, $blockRow['id']]) }}">
+                                <span><strong>{{ adminFieldConfig('block_type')['options'][$blockRow['block_type']] ?? $blockRow['block_type'] }}</strong><small class="d-block text-muted">{{ $blockRow['title'] }} · ترتیب {{ \App\Support\JalaliDate::faNumber($blockRow['sort_order'] ?? 0) }}</small></span>
+                                <span class="badge {{ $blockRow['enabled'] ? 'text-bg-success' : 'text-bg-secondary' }}">{{ $blockRow['enabled'] ? 'نمایش' : 'مخفی' }}</span>
+                            </a>
+                        @endforeach
+                    </div>
+                </div></div></div>
+            @endforeach
+        </div>
+    @endif
+
     <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 admin-bootstrap-table">

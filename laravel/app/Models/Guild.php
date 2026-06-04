@@ -14,4 +14,5 @@ class Guild extends Model
     public function category(): BelongsTo { return $this->belongsTo(Category::class); }
     public function members(): HasMany { return $this->hasMany(GuildMember::class); }
     public function complaints(): HasMany { return $this->hasMany(Complaint::class); }
+    public function pageBlocks(): HasMany { return $this->hasMany(GuildPageBlock::class); }
 }

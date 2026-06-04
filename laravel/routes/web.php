@@ -158,6 +158,7 @@ function adminModules(): array
         'categories' => ['group' => 'محتوا', 'title' => 'دسته‌بندی‌ها', 'description' => 'دسته‌های اخبار، اتحادیه‌ها، خدمات و گردشگری را تعریف کنید.', 'table' => 'categories', 'columns' => ['id', 'type', 'title', 'slug'], 'editable' => ['type', 'title', 'slug', 'description']],
         'systems' => ['group' => 'محتوا', 'title' => 'سامانه‌ها', 'description' => 'لینک سامانه‌های داخلی و خارجی را برای نمایش در سایت مدیریت کنید.', 'table' => 'systems', 'columns' => ['id', 'title', 'url', 'enabled'], 'editable' => ['slug', 'title', 'url', 'description', 'is_external', 'enabled']],
         'guilds' => ['group' => 'اتحادیه و خدمات', 'title' => 'اتحادیه‌ها', 'description' => 'صفحه اختصاصی هر اتحادیه، وضعیت شکایت، امکانات و اطلاعات تماس را مدیریت کنید.', 'table' => 'guilds', 'columns' => ['id', 'title', 'chairman', 'phone', 'complaints_enabled', 'members_count'], 'editable' => ['category_id', 'slug', 'title', 'chairman', 'phone', 'complaints_enabled', 'features', 'members_count', 'summary', 'content']],
+        'guild_page_blocks' => ['group' => 'اتحادیه و خدمات', 'title' => 'بخش‌های صفحه اتحادیه', 'description' => 'هر قسمت صفحه جزئیات اتحادیه مثل قوانین، مقالات، نرخ‌نامه، صورتجلسه، آموزش، گالری و اطلاعات تماس را جداگانه و قابل فهم مدیریت کنید.', 'table' => 'guild_page_blocks', 'columns' => ['id', 'guild_title', 'block_type', 'title', 'enabled', 'sort_order'], 'editable' => ['guild_id', 'block_type', 'title', 'subtitle', 'items', 'enabled', 'sort_order']],
         'guild_members' => ['group' => 'اتحادیه و خدمات', 'title' => 'اعضای اتحادیه', 'description' => 'اعضای هر اتحادیه و وضعیت دریافت پیامک آن‌ها را ثبت کنید.', 'table' => 'guild_members', 'columns' => ['id', 'guild_id', 'name', 'mobile', 'business_name'], 'editable' => ['guild_id', 'name', 'mobile', 'business_name', 'license_number', 'sms_enabled']],
         'complaints' => ['group' => 'اتحادیه و خدمات', 'title' => 'شکایات', 'description' => 'شکایات ثبت‌شده، کد رهگیری و وضعیت رسیدگی را مدیریت کنید.', 'table' => 'complaints', 'columns' => ['id', 'tracking_code', 'guild_id', 'name', 'mobile', 'status'], 'editable' => ['guild_id', 'tracking_code', 'name', 'mobile', 'body', 'status']],
         'sms_messages' => ['group' => 'اتحادیه و خدمات', 'title' => 'پیامک‌ها', 'description' => 'پیامک‌های ارسالی به اعضای اتحادیه یا شخص خاص را آماده و پیگیری کنید.', 'table' => 'sms_messages', 'columns' => ['id', 'guild_id', 'recipient_type', 'recipient_mobile', 'status'], 'editable' => ['guild_id', 'sent_by', 'recipient_type', 'recipient_mobile', 'body', 'status']],
@@ -192,6 +193,18 @@ function adminRows(string $table): array
         return [];
     }
 
+    if ($table === 'guild_page_blocks' && adminSafeHasTable('guilds')) {
+        return DB::table('guild_page_blocks')
+            ->leftJoin('guilds', 'guilds.id', '=', 'guild_page_blocks.guild_id')
+            ->select('guild_page_blocks.*', 'guilds.title as guild_title')
+            ->orderBy('guilds.title')
+            ->orderBy('guild_page_blocks.sort_order')
+            ->limit(100)
+            ->get()
+            ->map(fn ($row) => (array) $row)
+            ->all();
+    }
+
     return DB::table($table)->latest('id')->limit(100)->get()->map(fn ($row) => (array) $row)->all();
 }
 
@@ -201,7 +214,7 @@ function adminNormalizePayload(array $payload): array
         if (in_array($key, ['enabled', 'active', 'important', 'complaints_enabled', 'sms_enabled', 'is_external'], true)) {
             $payload[$key] = (bool) $value;
         }
-        if (in_array($key, ['value', 'permissions', 'features', 'gallery', 'settings'], true) && is_string($value)) {
+        if (in_array($key, ['value', 'permissions', 'features', 'gallery', 'settings', 'items'], true) && is_string($value)) {
             $decoded = json_decode($value, true);
             $payload[$key] = json_last_error() === JSON_ERROR_NONE ? json_encode($decoded, JSON_UNESCAPED_UNICODE) : json_encode($value, JSON_UNESCAPED_UNICODE);
         }
@@ -232,6 +245,9 @@ function adminFieldMeta(): array
         'type' => ['label' => 'نوع محتوا/دسته', 'options' => ['خبر' => 'خبر', 'اطلاعیه' => 'اطلاعیه', 'guild' => 'اتحادیه', 'tourism' => 'گردشگری', 'content' => 'محتوا']],
         'video_type' => ['label' => 'نوع ویدیو', 'options' => ['upload' => 'آپلود مستقیم', 'aparat' => 'لینک آپارات', 'external' => 'لینک خارجی']],
         'recipient_type' => ['label' => 'گیرنده پیامک', 'options' => ['guild_members' => 'همه اعضای اتحادیه', 'single' => 'یک شماره خاص']],
+        'block_type' => ['label' => 'نوع بخش صفحه اتحادیه', 'help' => 'انتخاب کنید این رکورد کدام قسمت صفحه جزئیات اتحادیه را کنترل می‌کند.', 'options' => ['access' => 'سطوح دسترسی و امکانات', 'rules' => 'قوانین و دستورالعمل‌ها', 'articles' => 'مقالات و محتوای آموزشی', 'prices' => 'نرخ‌نامه و تعرفه‌ها', 'minutes' => 'صورتجلسه‌ها', 'education' => 'آموزش اعضا', 'gallery' => 'گالری تصاویر', 'contact' => 'اطلاعات تماس و پاسخگویی']],
+        'items' => ['label' => 'آیتم‌های این بخش', 'help' => 'آیتم‌ها را به‌صورت JSON وارد کنید؛ مثال: [{"title":"عنوان","summary":"توضیح","icon":"📋"}]. برای گالری، image و title وارد کنید.'],
+        'subtitle' => ['label' => 'توضیح کوتاه بخش', 'help' => 'این متن زیر عنوان بخش در صفحه اتحادیه نمایش داده می‌شود.'],
         'key' => ['label' => 'کلید تنظیمات', 'help' => 'کلید فنی تنظیمات؛ فقط در صورت نیاز تغییر دهید.'],
         'value' => ['label' => 'مقدار تنظیمات', 'help' => 'می‌تواند متن یا JSON باشد. برای کاربران عادی بهتر است فقط متن‌های موجود را اصلاح کنید.'],
         'slug' => ['label' => 'آدرس یکتا', 'help' => 'فقط حروف انگلیسی، عدد و خط تیره؛ مثال: market-news'],
@@ -252,7 +268,7 @@ function adminLabels(): array
         'id' => 'شناسه', 'title' => 'عنوان', 'name' => 'نام', 'status' => 'وضعیت', 'url' => 'لینک', 'slug' => 'نامک',
         'location' => 'جایگاه', 'parent_id' => 'والد', 'sort_order' => 'ترتیب', 'enabled' => 'فعال', 'key' => 'کلید',
         'type' => 'نوع', 'summary' => 'خلاصه', 'content' => 'محتوا', 'permissions' => 'دسترسی‌ها', 'value' => 'مقدار',
-        'phone' => 'تلفن', 'mobile' => 'موبایل', 'body' => 'متن', 'important' => 'مهم', 'active' => 'فعال', 'position' => 'جایگاه نمایش', 'location' => 'محل منو', 'parent_id' => 'والد', 'is_external' => 'لینک خارجی', 'category_id' => 'دسته‌بندی', 'guild_id' => 'اتحادیه', 'chairman' => 'رئیس اتحادیه', 'members_count' => 'تعداد اعضا', 'tracking_code' => 'کد رهگیری', 'recipient_type' => 'گیرنده', 'recipient_mobile' => 'موبایل گیرنده', 'approved_by' => 'تاییدکننده', 'video_type' => 'نوع ویدیو', 'video_url' => 'لینک ویدیو',
+        'phone' => 'تلفن', 'mobile' => 'موبایل', 'body' => 'متن', 'important' => 'مهم', 'active' => 'فعال', 'position' => 'جایگاه نمایش', 'location' => 'محل منو', 'parent_id' => 'والد', 'is_external' => 'لینک خارجی', 'category_id' => 'دسته‌بندی', 'guild_id' => 'اتحادیه', 'chairman' => 'رئیس اتحادیه', 'members_count' => 'تعداد اعضا', 'tracking_code' => 'کد رهگیری', 'recipient_type' => 'گیرنده', 'recipient_mobile' => 'موبایل گیرنده', 'approved_by' => 'تاییدکننده', 'video_type' => 'نوع ویدیو', 'video_url' => 'لینک ویدیو', 'block_type' => 'نوع بخش', 'guild_title' => 'نام اتحادیه', 'subtitle' => 'توضیح کوتاه', 'items' => 'آیتم‌ها',
     ];
 }
 
@@ -313,9 +329,65 @@ Route::get('/guilds/{slug}', function (string $slug) {
     }
     $news = collect($data['news'])->take(4)->values()->all();
     $announcements = collect($data['news'])->where('type', 'اطلاعیه')->values()->all();
-    if (! $announcements) $announcements = $news;
-    $gallery = collect($news)->flatMap(fn ($item) => $item['gallery'] ?? [])->filter()->take(4)->values()->all();
-    if (! $gallery) $gallery = array_fill(0, 4, $data['site']['hero_image']);
+    if (! $announcements) {
+        $announcements = $news;
+    }
+
+    $fallbackBlocks = [
+        'rules' => ['title' => 'قوانین و دستورالعمل‌ها', 'items' => [
+            ['icon' => '📋', 'title' => 'دستورالعمل فعالیت صنفی', 'summary' => 'ضوابط فعالیت، تمدید پروانه و مدارک مورد نیاز اعضای اتحادیه.'],
+            ['icon' => '⚖️', 'title' => 'رسیدگی به شکایات', 'summary' => 'فرآیند ثبت، ارجاع، بررسی و پاسخ‌دهی به شکایات مردمی.'],
+            ['icon' => '🧾', 'title' => 'صدور فاکتور و شفافیت', 'summary' => 'الزامات ثبت اطلاعات فروش، خدمات و اطلاع‌رسانی به مصرف‌کننده.'],
+            ['icon' => '🛡️', 'title' => 'بازرسی و نظارت', 'summary' => 'برنامه‌های نظارتی اتحادیه و تعامل با اتاق اصناف.'],
+        ]],
+        'articles' => ['title' => 'مقالات و محتوای آموزشی', 'items' => [
+            ['title' => 'راهنمای استفاده از خدمات '.$guild['title'], 'summary' => 'نکات کاربردی برای اعضا و مراجعه‌کنندگان این اتحادیه.'],
+            ['title' => 'حقوق مصرف‌کننده در '.$guild['category'], 'summary' => 'آشنایی با حقوق شهروندان و وظایف واحدهای صنفی.'],
+            ['title' => 'آموزش قوانین نظام صنفی', 'summary' => 'مرور الزامات قانونی و اداری برای فعالان صنفی.'],
+        ]],
+        'prices' => ['title' => 'نرخ‌نامه و تعرفه‌ها', 'items' => [
+            ['title' => 'تعرفه خدمات پایه', 'amount' => 'طبق نرخ مصوب', 'type' => 'مصوب اتحادیه'],
+            ['title' => 'هزینه کارشناسی پرونده', 'amount' => 'قابل تنظیم در پنل', 'type' => 'خدمات اداری'],
+            ['title' => 'هزینه آموزش اعضا', 'amount' => 'قابل تنظیم در پنل', 'type' => 'آموزشی'],
+        ]],
+        'minutes' => ['title' => 'صورتجلسه‌ها و مصوبات', 'items' => [
+            ['title' => 'صورتجلسه هیئت مدیره '.$guild['title']],
+            ['title' => 'صورتجلسه کمیسیون رسیدگی و نظارت'],
+            ['title' => 'صورتجلسه برنامه‌ریزی آموزش اعضا'],
+        ]],
+        'education' => ['title' => 'آموزش اعضا', 'items' => [
+            ['icon' => '📚', 'title' => 'قوانین نظام صنفی', 'summary' => 'آموزش مقررات و تکالیف قانونی'],
+            ['icon' => '🔍', 'title' => 'بازرسی و استاندارد', 'summary' => 'آشنایی با شاخص‌های نظارت'],
+            ['icon' => '💰', 'title' => 'مالیات و حسابداری', 'summary' => 'اصول پرونده مالیاتی اعضا'],
+            ['icon' => '🛡️', 'title' => 'حقوق مصرف‌کننده', 'summary' => 'صیانت از حقوق شهروندان'],
+        ]],
+    ];
+
+    $guildBlocks = $fallbackBlocks;
+    if ($guildId && adminSafeHasTable('guild_page_blocks')) {
+        $dbBlocks = DB::table('guild_page_blocks')
+            ->where('guild_id', $guildId)
+            ->where('enabled', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->mapWithKeys(fn ($block) => [$block->block_type => [
+                'title' => $block->title,
+                'subtitle' => $block->subtitle,
+                'items' => asnafJson($block->items),
+            ]])
+            ->all();
+        $guildBlocks = array_replace($guildBlocks, $dbBlocks);
+    }
+
+    $gallery = $guildBlocks['gallery']['items'] ?? collect($news)->flatMap(fn ($item) => $item['gallery'] ?? [])->filter()->take(4)->values()->all();
+    $gallery = collect($gallery)
+        ->map(fn ($item) => is_array($item) ? ($item['image'] ?? $item['url'] ?? $data['site']['hero_image']) : $item)
+        ->filter()
+        ->values()
+        ->all();
+    if (! $gallery) {
+        $gallery = array_fill(0, 4, $data['site']['hero_image']);
+    }
 
     return view('site.guild-detail', asnafViewData([
         'guild' => $guild,
@@ -324,33 +396,12 @@ Route::get('/guilds/{slug}', function (string $slug) {
         'news' => $news,
         'announcements' => $announcements,
         'gallery' => $gallery,
-        'rules' => [
-            ['icon' => '📋', 'title' => 'دستورالعمل فعالیت صنفی', 'summary' => 'ضوابط فعالیت، تمدید پروانه و مدارک مورد نیاز اعضای اتحادیه.'],
-            ['icon' => '⚖️', 'title' => 'رسیدگی به شکایات', 'summary' => 'فرآیند ثبت، ارجاع، بررسی و پاسخ‌دهی به شکایات مردمی.'],
-            ['icon' => '🧾', 'title' => 'صدور فاکتور و شفافیت', 'summary' => 'الزامات ثبت اطلاعات فروش، خدمات و اطلاع‌رسانی به مصرف‌کننده.'],
-            ['icon' => '🛡️', 'title' => 'بازرسی و نظارت', 'summary' => 'برنامه‌های نظارتی اتحادیه و تعامل با اتاق اصناف.'],
-        ],
-        'articles' => [
-            ['title' => 'راهنمای استفاده از خدمات '.$guild['title'], 'summary' => 'نکات کاربردی برای اعضا و مراجعه‌کنندگان این اتحادیه.'],
-            ['title' => 'حقوق مصرف‌کننده در '.$guild['category'], 'summary' => 'آشنایی با حقوق شهروندان و وظایف واحدهای صنفی.'],
-            ['title' => 'آموزش قوانین نظام صنفی', 'summary' => 'مرور الزامات قانونی و اداری برای فعالان صنفی.'],
-        ],
-        'prices' => [
-            ['title' => 'تعرفه خدمات پایه', 'amount' => 'طبق نرخ مصوب', 'type' => 'مصوب اتحادیه'],
-            ['title' => 'هزینه کارشناسی پرونده', 'amount' => 'قابل تنظیم در پنل', 'type' => 'خدمات اداری'],
-            ['title' => 'هزینه آموزش اعضا', 'amount' => 'قابل تنظیم در پنل', 'type' => 'آموزشی'],
-        ],
-        'minutes' => [
-            ['title' => 'صورتجلسه هیئت مدیره '.$guild['title']],
-            ['title' => 'صورتجلسه کمیسیون رسیدگی و نظارت'],
-            ['title' => 'صورتجلسه برنامه‌ریزی آموزش اعضا'],
-        ],
-        'educations' => [
-            ['icon' => '📚', 'title' => 'قوانین نظام صنفی', 'summary' => 'آموزش مقررات و تکالیف قانونی'],
-            ['icon' => '🔍', 'title' => 'بازرسی و استاندارد', 'summary' => 'آشنایی با شاخص‌های نظارت'],
-            ['icon' => '💰', 'title' => 'مالیات و حسابداری', 'summary' => 'اصول پرونده مالیاتی اعضا'],
-            ['icon' => '🛡️', 'title' => 'حقوق مصرف‌کننده', 'summary' => 'صیانت از حقوق شهروندان'],
-        ],
+        'guildBlocks' => $guildBlocks,
+        'rules' => $guildBlocks['rules']['items'] ?? [],
+        'articles' => $guildBlocks['articles']['items'] ?? [],
+        'prices' => $guildBlocks['prices']['items'] ?? [],
+        'minutes' => $guildBlocks['minutes']['items'] ?? [],
+        'educations' => $guildBlocks['education']['items'] ?? [],
     ]));
 })->name('guilds.show');
 

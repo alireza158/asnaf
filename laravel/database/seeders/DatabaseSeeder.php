@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
 
         DB::transaction(function () use ($data, $now): void {
             Schema::disableForeignKeyConstraints();
-            foreach (['sms_messages', 'complaints', 'role_user', 'roles', 'advertisements', 'systems', 'tourism_places', 'commission_meetings', 'commissions', 'contents', 'guild_members', 'guilds', 'service_pages', 'categories', 'home_sections', 'menus', 'site_settings'] as $table) {
+            foreach (['sms_messages', 'complaints', 'guild_page_blocks', 'role_user', 'roles', 'advertisements', 'systems', 'tourism_places', 'commission_meetings', 'commissions', 'contents', 'guild_members', 'guilds', 'service_pages', 'categories', 'home_sections', 'menus', 'site_settings'] as $table) {
                 DB::table($table)->delete();
             }
             Schema::enableForeignKeyConstraints();
@@ -128,6 +128,34 @@ class DatabaseSeeder extends Seeder
                         'business_name' => 'واحد صنفی نمونه '.$i,
                         'license_number' => 'LIC-'.$guildId.'-'.$i,
                         'sms_enabled' => true,
+                        'created_at' => $now,
+                        'updated_at' => $now,
+                    ]);
+                }
+            }
+
+
+            foreach ($guildIds as $slug => $guildId) {
+                $guildTitle = DB::table('guilds')->where('id', $guildId)->value('title');
+                $blocks = [
+                    ['access', 'سطوح دسترسی و امکانات اتحادیه', 'نقش‌ها و دسترسی‌های مرتبط با پنل اتحادیه', [['title' => 'کارشناس اتحادیه', 'summary' => 'مشاهده اعضا، پاسخ شکایت، ارسال پیامک'], ['title' => 'خبرنگار', 'summary' => 'ثبت خبر، گالری و ویدیو برای تایید مدیرکل']]],
+                    ['rules', 'قوانین و دستورالعمل‌ها', 'ضوابط قابل نمایش در صفحه اتحادیه', [['icon' => '📋', 'title' => 'دستورالعمل فعالیت صنفی', 'summary' => 'ضوابط فعالیت، تمدید پروانه و مدارک مورد نیاز'], ['icon' => '⚖️', 'title' => 'رسیدگی به شکایات', 'summary' => 'فرآیند ثبت، ارجاع و پاسخ‌دهی به شکایت']]],
+                    ['articles', 'مقاله‌ها', 'محتوای آموزشی و راهنمای اعضا', [['title' => 'راهنمای استفاده از خدمات '.$guildTitle, 'summary' => 'نکات کاربردی برای اعضا و مراجعه‌کنندگان'], ['title' => 'حقوق مصرف‌کننده', 'summary' => 'آشنایی با وظایف واحدهای صنفی']]],
+                    ['prices', 'نرخ نامه و تعرفه خدمات', 'تعرفه‌های قابل تنظیم اتحادیه', [['title' => 'تعرفه خدمات پایه', 'amount' => 'طبق نرخ مصوب', 'type' => 'مصوب اتحادیه'], ['title' => 'هزینه کارشناسی پرونده', 'amount' => 'قابل تنظیم در پنل', 'type' => 'خدمات اداری']]],
+                    ['minutes', 'صورتجلسه‌های اجرایی', 'فایل‌ها و صورتجلسه‌های اتحادیه', [['title' => 'صورتجلسه هیئت مدیره '.$guildTitle], ['title' => 'صورتجلسه کمیسیون رسیدگی و نظارت']]],
+                    ['education', 'آموزش', 'دوره‌ها و محتوای آموزشی', [['icon' => '📚', 'title' => 'قوانین نظام صنفی', 'summary' => 'آموزش مقررات و تکالیف قانونی'], ['icon' => '🛡️', 'title' => 'حقوق مصرف‌کننده', 'summary' => 'صیانت از حقوق شهروندان']]],
+                    ['gallery', 'گالری تصاویر و ویدیو', 'تصاویر و ویدیوهای مرتبط با اتحادیه', [['image' => 'theme/assets/img/asnaf-gorgan-default.jpg'], ['image' => 'theme/assets/img/asnaf-gorgan-default.jpg']]],
+                    ['contact', 'تماس با اتحادیه', 'اطلاعات تماس اختصاصی اتحادیه', [['label' => 'تلفن', 'value' => DB::table('guilds')->where('id', $guildId)->value('phone')], ['label' => 'آدرس', 'value' => $data['site']['address']]]],
+                ];
+                foreach ($blocks as $order => [$type, $title, $subtitle, $items]) {
+                    DB::table('guild_page_blocks')->insert([
+                        'guild_id' => $guildId,
+                        'block_type' => $type,
+                        'title' => $title,
+                        'subtitle' => $subtitle,
+                        'items' => json_encode($items, JSON_UNESCAPED_UNICODE),
+                        'enabled' => true,
+                        'sort_order' => $order + 1,
                         'created_at' => $now,
                         'updated_at' => $now,
                     ]);
