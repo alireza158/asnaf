@@ -280,7 +280,7 @@ function adminFieldMeta(): array
         'type' => ['label' => 'نوع محتوا/دسته', 'options' => ['خبر' => 'خبر', 'اطلاعیه' => 'اطلاعیه', 'guild' => 'اتحادیه', 'tourism' => 'گردشگری', 'content' => 'محتوا']],
         'video_type' => ['label' => 'نوع ویدیو', 'options' => ['upload' => 'آپلود مستقیم', 'aparat' => 'لینک آپارات', 'external' => 'لینک خارجی']],
         'recipient_type' => ['label' => 'گیرنده پیامک', 'options' => ['guild_members' => 'همه اعضای اتحادیه', 'single' => 'یک شماره خاص']],
-        'block_type' => ['label' => 'نوع بخش صفحه اتحادیه', 'help' => 'انتخاب کنید این رکورد کدام قسمت صفحه جزئیات اتحادیه را کنترل می‌کند.', 'options' => ['access' => 'سطوح دسترسی و امکانات', 'rules' => 'قوانین و دستورالعمل‌ها', 'articles' => 'مقالات و محتوای آموزشی', 'prices' => 'نرخ‌نامه و تعرفه‌ها', 'minutes' => 'صورتجلسه‌ها', 'education' => 'آموزش اعضا', 'gallery' => 'گالری تصاویر', 'contact' => 'اطلاعات تماس و پاسخگویی']],
+        'block_type' => ['label' => 'نوع بخش صفحه اتحادیه', 'help' => 'انتخاب کنید این رکورد کدام قسمت صفحه جزئیات اتحادیه را کنترل می‌کند.', 'options' => ['head' => 'معرفی و رئیس اتحادیه', 'board' => 'هیئت مدیره و اعضا', 'access' => 'سطوح دسترسی و امکانات', 'commissions' => 'کمیسیون‌های اتحادیه', 'rules' => 'قوانین و دستورالعمل‌ها', 'news_slider' => 'اسلایدر خبری اتحادیه', 'latest_news' => 'آخرین اخبار اتحادیه', 'articles' => 'مقالات و محتوای آموزشی', 'prices' => 'نرخ‌نامه و تعرفه‌ها', 'complaint' => 'ثبت شکایت صنفی', 'minutes' => 'صورتجلسه‌ها', 'education' => 'آموزش اعضا', 'announcements' => 'اطلاعیه و بخشنامه‌ها', 'gallery' => 'گالری تصاویر', 'search' => 'جستجو در اتحادیه', 'contact' => 'اطلاعات تماس و پاسخگویی']],
         'items' => ['label' => 'آیتم‌های این بخش', 'help' => 'آیتم‌ها را به‌صورت JSON وارد کنید؛ مثال: [{"title":"عنوان","summary":"توضیح","icon":"📋"}]. برای گالری، image و title وارد کنید.'],
         'subtitle' => ['label' => 'توضیح کوتاه بخش', 'help' => 'این متن زیر عنوان بخش در صفحه اتحادیه نمایش داده می‌شود.'],
         'key' => ['label' => 'کلید تنظیمات', 'help' => 'کلید فنی تنظیمات؛ فقط در صورت نیاز تغییر دهید.'],
@@ -369,45 +369,56 @@ Route::get('/guilds/{slug}', function (string $slug) {
     }
 
     $fallbackBlocks = [
-        'rules' => ['title' => 'قوانین و دستورالعمل‌ها', 'items' => [
+        'head' => ['title' => 'رییس '.$guild['title'], 'subtitle' => $guild['content'] ?? $guild['summary'], 'enabled' => true, 'items' => []],
+        'board' => ['title' => 'هیئت مدیره و اعضای نمونه', 'subtitle' => 'اعضا و مسئولان قابل مدیریت اتحادیه', 'enabled' => true, 'items' => []],
+        'access' => ['title' => 'سطوح دسترسی و امکانات اتحادیه', 'subtitle' => 'نقش‌ها و امکانات قابل نمایش برای این اتحادیه', 'enabled' => true, 'items' => []],
+        'commissions' => ['title' => 'کمیسیون‌های اتحادیه', 'subtitle' => 'کمیسیون‌ها و کارگروه‌های مرتبط با اتحادیه', 'enabled' => true, 'items' => []],
+        'rules' => ['title' => 'قوانین و دستورالعمل‌ها', 'enabled' => true, 'items' => [
             ['icon' => '📋', 'title' => 'دستورالعمل فعالیت صنفی', 'summary' => 'ضوابط فعالیت، تمدید پروانه و مدارک مورد نیاز اعضای اتحادیه.'],
             ['icon' => '⚖️', 'title' => 'رسیدگی به شکایات', 'summary' => 'فرآیند ثبت، ارجاع، بررسی و پاسخ‌دهی به شکایات مردمی.'],
             ['icon' => '🧾', 'title' => 'صدور فاکتور و شفافیت', 'summary' => 'الزامات ثبت اطلاعات فروش، خدمات و اطلاع‌رسانی به مصرف‌کننده.'],
             ['icon' => '🛡️', 'title' => 'بازرسی و نظارت', 'summary' => 'برنامه‌های نظارتی اتحادیه و تعامل با اتاق اصناف.'],
         ]],
-        'articles' => ['title' => 'مقالات و محتوای آموزشی', 'items' => [
+        'articles' => ['enabled' => true, 'title' => 'مقالات و محتوای آموزشی', 'items' => [
             ['title' => 'راهنمای استفاده از خدمات '.$guild['title'], 'summary' => 'نکات کاربردی برای اعضا و مراجعه‌کنندگان این اتحادیه.'],
             ['title' => 'حقوق مصرف‌کننده در '.$guild['category'], 'summary' => 'آشنایی با حقوق شهروندان و وظایف واحدهای صنفی.'],
             ['title' => 'آموزش قوانین نظام صنفی', 'summary' => 'مرور الزامات قانونی و اداری برای فعالان صنفی.'],
         ]],
-        'prices' => ['title' => 'نرخ‌نامه و تعرفه‌ها', 'items' => [
+        'prices' => ['enabled' => true, 'title' => 'نرخ‌نامه و تعرفه‌ها', 'items' => [
             ['title' => 'تعرفه خدمات پایه', 'amount' => 'طبق نرخ مصوب', 'type' => 'مصوب اتحادیه'],
             ['title' => 'هزینه کارشناسی پرونده', 'amount' => 'قابل تنظیم در پنل', 'type' => 'خدمات اداری'],
             ['title' => 'هزینه آموزش اعضا', 'amount' => 'قابل تنظیم در پنل', 'type' => 'آموزشی'],
         ]],
-        'minutes' => ['title' => 'صورتجلسه‌ها و مصوبات', 'items' => [
+        'minutes' => ['enabled' => true, 'title' => 'صورتجلسه‌ها و مصوبات', 'items' => [
             ['title' => 'صورتجلسه هیئت مدیره '.$guild['title']],
             ['title' => 'صورتجلسه کمیسیون رسیدگی و نظارت'],
             ['title' => 'صورتجلسه برنامه‌ریزی آموزش اعضا'],
         ]],
-        'education' => ['title' => 'آموزش اعضا', 'items' => [
+        'education' => ['enabled' => true, 'title' => 'آموزش اعضا', 'items' => [
             ['icon' => '📚', 'title' => 'قوانین نظام صنفی', 'summary' => 'آموزش مقررات و تکالیف قانونی'],
             ['icon' => '🔍', 'title' => 'بازرسی و استاندارد', 'summary' => 'آشنایی با شاخص‌های نظارت'],
             ['icon' => '💰', 'title' => 'مالیات و حسابداری', 'summary' => 'اصول پرونده مالیاتی اعضا'],
             ['icon' => '🛡️', 'title' => 'حقوق مصرف‌کننده', 'summary' => 'صیانت از حقوق شهروندان'],
         ]],
+        'news_slider' => ['title' => 'اسلایدر خبری اتحادیه', 'enabled' => true, 'items' => []],
+        'latest_news' => ['title' => 'آخرین اخبار '.$guild['title'], 'enabled' => true, 'items' => []],
+        'complaint' => ['title' => 'ثبت شکایت صنفی', 'subtitle' => 'ثبت و پیگیری شکایت با کد رهگیری', 'enabled' => true, 'items' => []],
+        'announcements' => ['title' => 'اطلاعیه و بخشنامه‌ها', 'enabled' => true, 'items' => []],
+        'gallery' => ['title' => 'گالری تصاویر و ویدیو', 'enabled' => true, 'items' => []],
+        'search' => ['title' => 'جستجو در '.$guild['title'], 'subtitle' => 'عبارت مورد نظر خود را در میان اخبار، اعضا، قوانین و اطلاعات اتحادیه جستجو کنید', 'enabled' => true, 'items' => []],
+        'contact' => ['title' => 'تماس با '.$guild['title'], 'enabled' => true, 'items' => []],
     ];
 
     $guildBlocks = $fallbackBlocks;
     if ($guildId && adminSafeHasTable('guild_page_blocks')) {
         $dbBlocks = DB::table('guild_page_blocks')
             ->where('guild_id', $guildId)
-            ->where('enabled', true)
             ->orderBy('sort_order')
             ->get()
             ->mapWithKeys(fn ($block) => [$block->block_type => [
                 'title' => $block->title,
                 'subtitle' => $block->subtitle,
+                'enabled' => (bool) $block->enabled,
                 'items' => asnafJson($block->items),
             ]])
             ->all();

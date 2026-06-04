@@ -3780,3 +3780,68 @@ img { display: block; max-width: 100%; }
   .admin-shell { display: block !important; }
   .admin-sidebar-bootstrap { width: 100%; min-height: auto; position: static; }
 }
+
+/* Stable, simple admin sidebar: keeps module groups readable on every screen. */
+.admin-shell {
+  align-items: stretch;
+  background: #f3f6fb;
+}
+.admin-sidebar-bootstrap {
+  width: 292px;
+  min-width: 292px;
+  max-width: 292px;
+  min-height: 100vh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  overflow-y: auto;
+  background: linear-gradient(180deg, #111827 0%, #1f2937 100%) !important;
+}
+.admin-sidebar-bootstrap .admin-bootstrap-nav {
+  display: block;
+}
+.admin-sidebar-bootstrap .list-group {
+  background: transparent;
+  gap: 6px;
+}
+.admin-sidebar-bootstrap .list-group-item {
+  margin-bottom: 6px;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, .07) !important;
+  color: rgba(255, 255, 255, .88) !important;
+  font-size: .92rem;
+  line-height: 1.7;
+}
+.admin-sidebar-bootstrap .list-group-item:hover {
+  background: rgba(255, 255, 255, .14) !important;
+  color: #fff !important;
+}
+.admin-sidebar-bootstrap .list-group-item.active {
+  background: #0d6efd !important;
+  color: #fff !important;
+  box-shadow: 0 10px 24px rgba(13, 110, 253, .28);
+}
+.admin-sidebar-bootstrap .btn-light.active,
+.admin-sidebar-bootstrap .btn-light:hover {
+  background: #fff;
+  color: #111827;
+}
+.admin-main {
+  min-width: 0;
+}
+@media (max-width: 991.98px) {
+  .admin-shell {
+    display: block !important;
+  }
+  .admin-sidebar-bootstrap {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    min-height: auto;
+    position: static;
+    border-radius: 0 0 24px 24px;
+  }
+  .admin-sidebar-bootstrap .admin-bootstrap-nav {
+    max-height: none;
+  }
+}
